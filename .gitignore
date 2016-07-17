@@ -1,0 +1,13 @@
+src/*~
+*~
+doc/html
+doc/latex
+*Makefile*
+*.orig
+.*.swp
+#*
+*#*
+CMake/common
+FiReS
+*compile_commands.json*
+*plist
