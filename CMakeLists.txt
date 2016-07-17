@@ -44,7 +44,17 @@ common_find_package_post( )
 
 list( APPEND SHIFT_DEPENDENT_LIBRARIES FiReS )
 
+add_subdirectory( bin )
 add_subdirectory( shift )
+
+configure_file(
+  CMake/shift_generate_cxx.cmake
+  ${PROJECT_BINARY_DIR}/${CMAKE_MODULE_INSTALL_PATH}/shift_generate_cxx.cmake
+  COPYONLY
+  )
+install( FILES CMake/shift_generate_cxx.cmake
+  DESTINATION ${CMAKE_MODULE_INSTALL_PATH} COMPONENT dev )
+
 
 include( CPackConfig )
 include( DoxygenRule )
