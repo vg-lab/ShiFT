@@ -13,10 +13,11 @@ if( NOT SHIFT_CXX )
   message( FATAL_ERROR "shiftCXX.py not found" )
 endif( )
 
-function( shift_generate_cxx __OBJ__ __JSON__ __OUT_DIR__ )
+function( shift_generate_cxx __OBJ_TYPE__ __OBJ__ __JSON__ __OUT_DIR__ )
   add_custom_command(
     COMMAND ${PYTHON_EXECUTABLE} ${SHIFT_CXX}
     ARGS
+    ${__OBJ_TYPE__}
     ${__OBJ__}
     ${__JSON__}
     ${__OUT_DIR__}
