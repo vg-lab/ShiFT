@@ -58,7 +58,11 @@ def print_header( objectType, reps, rep, file ):
     body += "    " + rep[ "name" ] + "( \n"
     i = 1
     for prop in rep[ "properties" ] :
-        body += "      " + prop[ "type" ] + " " + prop[ "name" ] + " = " + \
+        if prop[ "type" ] in reps :
+            includes += "#include <shift_" + prop[ "type" ] + ".h>\n"
+
+        body += "      " + prop[ "type" ] + " " + \
+                prop[ "name" ].replace(" ", "") + " = " + \
                 prop[ "type" ] + "( )"
         if i == len( rep[ "properties" ] ) :
             body += "\n    );\n"
@@ -105,7 +109,8 @@ def print_impl( rep, file ):
     body += "  " + rep[ "name" ] + "::" + rep[ "name" ] + "(\n"
     i = 1;
     for prop in rep[ "properties" ] :
-        body += "      " + prop[ "type" ] + " " + prop[ "name" ]
+        body += "      " + prop[ "type" ] + " " + \
+                prop[ "name" ].replace(" ", "")
         if i == len( rep[ "properties" ] ) :
             body += " )\n"
         else :
@@ -114,8 +119,9 @@ def print_impl( rep, file ):
     body += "  {\n"
 
     for prop in rep[ "properties" ] :
-        body += "    this->registerProperty( \"" + prop[ "name" ] + "\", " \
-                + prop[ "name" ] + " );\n"
+        body += "    this->registerProperty( \"" + \
+                prop[ "name" ] + "\", " \
+                + prop[ "name" ].replace(" ", "") + " );\n"
     body += "  }\n"
     # Copy constructor
     body += "  " + rep[ "name" ] + "::" + rep[ "name" ] + \
