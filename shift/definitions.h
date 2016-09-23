@@ -21,6 +21,6 @@
  */
 #ifndef __SHIFT__DEFINITIONS__
 #ifdef Win32
-typedef unsigned int uint
+typedef unsigned int uint;
 #endif
 #endif
