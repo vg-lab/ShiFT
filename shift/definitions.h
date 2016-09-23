@@ -19,25 +19,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
-#ifndef __SHIFT__OBJECT__
-#define __SHIFT__OBJECT__
-
-#include "definitions.h"
-#include <fires/fires.h>
-
-namespace shift
-{
-
-  class Object
-    : public fires::Object
-  {
-  public:
-    Object( void );
-    virtual ~Object( void );
-  };
-
-  typedef std::vector< shift::Object* > Objects;
-
-
-}
-#endif // __SHIFT__OBJECT__
+#ifndef __SHIFT__DEFINITIONS__
+#ifdef Win32
+typedef unsigned int uint
+#endif
+#endif
