@@ -23,6 +23,7 @@
 #define __SHIFT__OBJECT__
 
 #include "definitions.h"
+#include <shift/api.h>
 #include <fires/fires.h>
 
 namespace shift
@@ -32,7 +33,10 @@ namespace shift
     : public fires::Object
   {
   public:
+    SHIFT_API
     Object( void );
+
+    SHIFT_API
     virtual ~Object( void );
   };
 
