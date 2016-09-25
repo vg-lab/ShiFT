@@ -110,7 +110,7 @@ def print_impl( rep, file ):
     i = 1;
     for prop in rep[ "properties" ] :
         body += "      " + prop[ "type" ] + " " + \
-                prop[ "name" ].replace(" ", "")
+                prop[ "name" ].replace(" ", "") + "__"
         if i == len( rep[ "properties" ] ) :
             body += " )\n"
         else :
@@ -121,7 +121,7 @@ def print_impl( rep, file ):
     for prop in rep[ "properties" ] :
         body += "    this->registerProperty( \"" + \
                 prop[ "name" ] + "\", " \
-                + prop[ "name" ].replace(" ", "") + " );\n"
+                + prop[ "name" ].replace(" ", "") + "__ );\n"
     body += "  }\n"
     # Copy constructor
     body += "  " + rep[ "name" ] + "::" + rep[ "name" ] + \
