@@ -33,7 +33,7 @@ namespace shift
   public:
     virtual ~RepresentationCreator( void ) {};
 
-    virtual void create( const Objects& objects,
+    virtual void create( const Entities& objects,
                          Representations& representations ) = 0;
 
   };

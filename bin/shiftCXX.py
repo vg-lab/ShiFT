@@ -28,8 +28,8 @@ def print_header( objectType, reps, rep, file ):
     if objectType == "Representation" :
         body += "    : public shift::Representation\n"
     else :
-        if objectType == "Object" :
-            body += "    : public shift::Object\n"
+        if objectType == "Entity" :
+            body += "    : public shift::Entity\n"
         else :
             raise Exception('objectType unknown')
     body += "  {\n"

@@ -1,9 +1,9 @@
 /*
- * Copyright (c) 2014-2016 GMRV/URJC/UPM.
+ * Copyright (c) 2016 GMRV/URJC/UPM.
  *
  * Authors: Pablo Toharia <pablo.toharia@upm.es>
  *
- * This file is part of ShiFT
+ * This file is part of Shift
  *
  * This library is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License version 3.0 as published
@@ -19,29 +19,27 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
-#ifndef __SHIFT__OBJECT__
-#define __SHIFT__OBJECT__
+#include "Entity.h"
 
-#include "definitions.h"
-#include <shift/api.h>
-#include <fires/fires.h>
 
 namespace shift
 {
 
-  class Object
-    : public fires::Object
+  static unsigned int entityGid = 0;
+
+  Entity::Entity( void )
   {
-  public:
-    SHIFT_API
-    Object( void );
+    _gid = entityGid++;
+  }
 
-    SHIFT_API
-    virtual ~Object( void );
-  };
+  Entity::~Entity( void )
+  {
+  }
 
-  typedef std::vector< shift::Object* > Objects;
+  unsigned int Entity::gid( void ) const
+  {
+    return _gid;
+  }
 
 
 }
-#endif // __SHIFT__OBJECT__

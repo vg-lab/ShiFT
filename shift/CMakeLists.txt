@@ -3,7 +3,7 @@ source_group(\\ FILES CMakeLists.txt)
 set( SHIFT_PUBLIC_HEADERS
   definitions.h
   error.h
-  Object.h
+  Entity.h
   Representation.h
   RepresentationCreator.h
   View.h
@@ -14,7 +14,7 @@ set( SHIFT_HEADERS
   )
 
 set( SHIFT_SOURCES
-  Object.cpp
+  Entity.cpp
   ViewGraph.cpp
   )
 
