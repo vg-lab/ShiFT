@@ -4,6 +4,8 @@ set( SHIFT_PUBLIC_HEADERS
   definitions.h
   error.h
   Entity.h
+  Entities.h
+  Relationship.h
   Representation.h
   RepresentationCreator.h
   View.h
@@ -15,6 +17,7 @@ set( SHIFT_HEADERS
 
 set( SHIFT_SOURCES
   Entity.cpp
+  Relationship.cpp
   ViewGraph.cpp
   )
 

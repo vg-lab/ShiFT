@@ -25,20 +25,20 @@
 namespace shift
 {
 
-  static unsigned int entityGid = 0;
+  static unsigned int shiftEntityGid = 0;
 
   Entity::Entity( void )
   {
-    _gid = entityGid++;
+    _entityGid = ++shiftEntityGid;
   }
 
   Entity::~Entity( void )
   {
   }
 
-  unsigned int Entity::gid( void ) const
+  unsigned int Entity::entityGid( void ) const
   {
-    return _gid;
+    return _entityGid;
   }
 
 

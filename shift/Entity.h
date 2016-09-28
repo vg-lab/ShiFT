@@ -19,12 +19,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
-#ifndef __SHIFT__OBJECT__
-#define __SHIFT__OBJECT__
+#ifndef __SHIFT__ENTITY__
+#define __SHIFT__ENTITY__
 
 #include "definitions.h"
 #include <shift/api.h>
 #include <fires/fires.h>
+
+#include <unordered_map>
 
 namespace shift
 {
@@ -40,14 +42,12 @@ namespace shift
     virtual ~Entity( void );
 
     SHIFT_API
-    unsigned int gid( void ) const;
+    unsigned int entityGid( void ) const;
 
   protected:
-    unsigned int _gid;
+    unsigned int _entityGid;
   };
-
-  typedef std::vector< shift::Entity* > Entities;
 
 
 }
-#endif // __SHIFT__OBJECT__
+#endif // __SHIFT__ENTITY__
