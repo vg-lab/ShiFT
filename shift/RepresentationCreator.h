@@ -23,9 +23,19 @@
 #define __SHIFT__REPRESENTATION_CREATOR__
 
 #include <vector>
+#include <unordered_map>
+#include <set>
+#include "Entities.h"
 
 namespace shift
 {
+  typedef std::unordered_map< shift::Entity*,
+                              std::set< shift::Representation* >>
+    TEntitiesToReps;
+  typedef std::unordered_map< shift::Representation*,
+                              std::set< shift::Entity* >>
+    TRepsToEntities;
+
   class RepresentationCreator
   {
 
@@ -33,8 +43,13 @@ namespace shift
   public:
     virtual ~RepresentationCreator( void ) {};
 
-    virtual void create( const Entities& objects,
-                         Representations& representations ) = 0;
+    virtual void create(
+      const shift::Entities& entities,
+      shift::Representations& representations,
+      shift::TEntitiesToReps& entitiesToReps,
+      shift::TRepsToEntities& repsToEntities,
+      bool linkEntitiesToReps = false,
+      bool linkRepsToObjs = false ) = 0;
 
   };
 
