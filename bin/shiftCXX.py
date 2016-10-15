@@ -17,6 +17,11 @@ def print_header( objectType, reps, rep, file ):
     includes += "#include <Color.h>\n"
     includes += "\n"
 
+    if "includes" in rep:
+        customIncludes = rep[ "includes" ]
+        for include in customIncludes :
+            includes += "#include " + include + "\n"
+
     # Namespaces
     namespaces = rep[ "namespace" ].split( "::" )
     for namespace in namespaces :
