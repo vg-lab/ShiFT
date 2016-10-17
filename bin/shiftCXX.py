@@ -124,7 +124,7 @@ def print_impl( rep, file ):
     body += "  {\n"
 
     for prop in rep[ "properties" ] :
-        body += "    this->registerProperty( \"" + \
+        body += "    fires::PropertyManager::registerProperty( this, \"" + \
                 prop[ "name" ] + "\", " \
                 + prop[ "name" ].replace(" ", "") + "__ );\n"
     body += "  }\n"
