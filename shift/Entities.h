@@ -26,25 +26,78 @@
 #include "Relationship.h"
 #include <shift/api.h>
 #include <assert.h>
+#include <unordered_map>
+#include <vector>
 
 namespace shift
 {
 
   class Entities
-    : public std::unordered_map< unsigned int, Entity* >
   {
   public:
+    // Entities indexed by its gid
+    typedef unsigned int IndexedEntitiesKey;
+    typedef Entity* IndexedEntitiesValue;
+    typedef std::unordered_map< unsigned int, Entity* > IndexedEntities;
+    // Entities vectorized to allow its use with fires tasks
+    typedef std::vector< Entity* > VectorizedEntities;
+
     void add( Entity* entity )
     {
-      assert( this->find( entity->entityGid( )) == this->end( ));
-      ( *this )[ entity->entityGid( ) ] = entity;
+      assert( _map.find( entity->entityGid( )) == _map.end( ));
+      _map[ entity->entityGid( ) ] = entity;
+      _vector.push_back( entity );
+      assert( _vector.size( ) == _map.size( ));
     }
+
+    IndexedEntitiesValue& at( const IndexedEntitiesKey& idx )
+    {
+      return _map.at( idx );
+    }
+
+    const IndexedEntitiesValue& at( const IndexedEntitiesKey& idx ) const
+    {
+      return _map.at( idx );
+    }
+
+    size_t size( void )
+    {
+      assert( _vector.size( ) == _map.size( ));
+      return _map.size( );
+    }
+
+    void clear( void )
+    {
+      _map.clear( );
+      _vector.clear( );
+    }
+
+    const IndexedEntities& map( void ) const
+    {
+      return _map;
+    }
+
+    const VectorizedEntities& vector( void ) const
+    {
+      return _vector;
+    }
+
+    VectorizedEntities& vector( void )
+    {
+      return _vector;
+    }
+
+  protected:
+    IndexedEntities _map;
+    VectorizedEntities _vector;
+
   };
 
   class EntitiesWithRelationships
     : public Entities
   {
   public:
+
 
     //! Relations are referenced by a name in a string
     typedef std::unordered_map< std::string, Relationship* > TRelationshipMap ;
@@ -57,8 +110,6 @@ namespace shift
     {
       return _relationships;
     }
-protected:
-
     //! Relations are referenced by a name in a string
     TRelationshipMap _relationships;
   };

@@ -26,6 +26,7 @@
 #include <unordered_map>
 #include <set>
 #include "Entities.h"
+#include "Representation.h"
 
 namespace shift
 {
