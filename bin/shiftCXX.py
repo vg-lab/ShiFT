@@ -53,8 +53,9 @@ def print_header( objectType, reps, rep, file ):
 
         if type[ "class" ] == "vector" :
             includes += "#include <vector>\n"
-            if type[ "element" ] in reps :
-                includes += "#include <shift_" + type[ "element" ] + ".h>\n"
+            if type[ "element" ].replace("*", "") in reps :
+                includes += "#include <shift_" +\
+                type[ "element" ].replace("*", "") + ".h>\n"
 
             body += "    typedef std::vector< " + type[ "element" ] + \
                     " > " + type[ "name" ] + ";\n\n"
