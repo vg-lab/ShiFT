@@ -77,4 +77,23 @@ namespace shift
     return this;
   }
 
+  void Relationship::Establish( RelationshipOneToN& relOneToN,
+                                RelationshipOneToOne& relOneToOne,
+                                unsigned int entityOrig,
+                                unsigned int entityDest )
+  {
+    relOneToN[ entityOrig ].insert( entityDest );
+    relOneToOne[ entityDest ] = entityOrig;
+  }
+
+  void Relationship::Establish( RelationshipOneToN& relOneToNOrig,
+                                RelationshipOneToN& relOneToNDest,
+                                unsigned int entityOrig,
+                                unsigned int entityDest )
+  {
+    relOneToNOrig[ entityOrig ].insert( entityDest );
+    relOneToNDest[ entityDest ].insert( entityOrig );
+  }
+
+
 } // namespace shift

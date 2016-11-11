@@ -26,6 +26,7 @@
 #include <shift/api.h>
 #include <unordered_set>
 #include <unordered_map>
+#include <assert.h>
 
 namespace shift
 {
@@ -52,7 +53,30 @@ namespace shift
     SHIFT_API virtual RelationshipOneToN* asOneToN( void );
     SHIFT_API virtual RelationshipNToN* asNToN( void );
 
-  protected:
+    static void Establish( RelationshipOneToN& relOneToN,
+                           RelationshipOneToOne& relOneToOne,
+                           Entity* entityOrig, Entity* entityDest )
+    {
+      assert( entityOrig && entityDest );
+      Establish( relOneToN, relOneToOne,
+                 entityOrig->entityGid( ), entityDest->entityGid( ) );
+    }
+    static void Establish( RelationshipOneToN& relOneToN,
+                           RelationshipOneToOne& relOneToOne,
+                           unsigned int entityOrig, unsigned int entityDest );
+
+    static void Establish( RelationshipOneToN& relOneToNOrig,
+                           RelationshipOneToN& relOneToNDest,
+                           Entity* entityOrig, Entity* entityDest )
+    {
+      assert( entityOrig && entityDest );
+      Establish( relOneToNOrig, relOneToNDest,
+                 entityOrig->entityGid( ), entityDest->entityGid( ) );
+    }
+    static void Establish( RelationshipOneToN& relOneToNOrig,
+                           RelationshipOneToN& relOneToNDest,
+                           unsigned int entityOrig, unsigned int entityDest );
+protected:
     TCardinality _cardinality;
 
   };
