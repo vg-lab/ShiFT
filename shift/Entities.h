@@ -60,7 +60,7 @@ namespace shift
       return _map.at( idx );
     }
 
-    size_t size( void )
+    size_t size( void ) const
     {
       assert( _vector.size( ) == _map.size( ));
       return _map.size( );
