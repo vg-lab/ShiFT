@@ -14,7 +14,6 @@ def print_header( objectType, reps, rep, file ):
     header += "#define " + header_define
 
     includes += "\n\n#include <shift/shift.h>\n"
-    includes += "#include <Color.h>\n"
     includes += "\n"
 
     if "includes" in rep:
