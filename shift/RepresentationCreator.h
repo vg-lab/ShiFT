@@ -37,6 +37,16 @@ namespace shift
                               std::set< shift::Entity* >>
     TRepsToEntities;
 
+  typedef std::tuple< shift::Entity*,
+                      shift::Entity*,
+                      shift::Representation*,
+                      shift::Representation* > TEntityRelationRep;
+
+  typedef std::vector< TEntityRelationRep > TRelatedEntitiesReps;
+
+  typedef std::unordered_map< unsigned int,
+      std::pair< shift::Entity*, shift::Representation* >> TGidToEntitiesReps;
+
   class RepresentationCreator
   {
 
@@ -49,6 +59,8 @@ namespace shift
       shift::Representations& representations,
       shift::TEntitiesToReps& entitiesToReps,
       shift::TRepsToEntities& repsToEntities,
+      shift::TRelatedEntitiesReps& relatedEntities,
+      shift::TGidToEntitiesReps& gidsToEntitiesReps,
       bool linkEntitiesToReps = false,
       bool linkRepsToObjs = false ) = 0;
 
