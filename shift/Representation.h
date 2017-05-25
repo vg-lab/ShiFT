@@ -33,6 +33,8 @@ namespace shift
   {
   public:
     virtual ~Representation( void ) {}
+
+    virtual void preRender( void ) {}
   };
 
 
