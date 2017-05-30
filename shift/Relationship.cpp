@@ -79,8 +79,8 @@ namespace shift
 
   void Relationship::Establish( RelationshipOneToN& relOneToN,
                                 RelationshipOneToOne& relOneToOne,
-                                unsigned int entityOrig,
-                                unsigned int entityDest ,
+                                Entity::EntityGid entityOrig,
+                                Entity::EntityGid entityDest,
                                 RelationshipProperties* properties )
   {
     relOneToN[ entityOrig ].entities.insert( entityDest );
@@ -90,8 +90,8 @@ namespace shift
 
   void Relationship::Establish( RelationshipOneToN& relOneToNOrig,
                                 RelationshipOneToN& relOneToNDest,
-                                unsigned int entityOrig,
-                                unsigned int entityDest,
+                                Entity::EntityGid entityOrig,
+                                Entity::EntityGid entityDest,
                                 RelationshipProperties* properties )
   {
     relOneToNOrig[ entityOrig ].entities.insert( entityDest );

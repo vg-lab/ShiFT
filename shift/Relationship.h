@@ -74,7 +74,8 @@ namespace shift
     }
     static void Establish( RelationshipOneToN& relOneToN,
                            RelationshipOneToOne& relOneToOne,
-                           unsigned int entityOrig, unsigned int entityDest,
+                           Entity::EntityGid entityOrig,
+                           Entity::EntityGid entityDest,
                            RelationshipProperties* properties = nullptr );
 
     static void Establish( RelationshipOneToN& relOneToNOrig,
@@ -89,7 +90,8 @@ namespace shift
     }
     static void Establish( RelationshipOneToN& relOneToNOrig,
                            RelationshipOneToN& relOneToNDest,
-                           unsigned int entityOrig, unsigned int entityDest,
+                           Entity::EntityGid entityOrig,
+                           Entity::EntityGid entityDest,
                            RelationshipProperties* properties = nullptr);
 protected:
     TCardinality _cardinality;
@@ -104,7 +106,7 @@ protected:
 
   class RelationshipOneToOne
     : public Relationship
-    , public std::unordered_map< unsigned int,
+    , public std::unordered_map< Entity::EntityGid,
                                  RelationshipOneToOneDest >
   {
   public:
@@ -120,7 +122,7 @@ protected:
 
   class RelationshipOneToN
     : public Relationship
-    , public std::unordered_map< unsigned int, RelationshipOneToNDest >
+    , public std::unordered_map< Entity::EntityGid, RelationshipOneToNDest >
   {
   public:
     SHIFT_API RelationshipOneToN( void );
@@ -130,8 +132,8 @@ protected:
     class RelationshipNToN
     : public Relationship
     , public std::vector< std::tuple<
-                            std::unordered_set< unsigned int >,
-                            std::unordered_set< unsigned int >,
+                            std::unordered_set< Entity::EntityGid >,
+                            std::unordered_set< Entity::EntityGid >,
                             RelationshipProperties >>
     {
   public:
