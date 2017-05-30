@@ -1,7 +1,10 @@
 /*
  * Copyright (c) 2014-2016 GMRV/URJC/UPM.
  *
- * Authors: Pablo Toharia <pablo.toharia@upm.es>
+ * Authors: Juan Pedro Brito <juanpedro.brito@upm.es>
+ *          Sergio E. Galindo <sergio.galindo@urj.es>
+ *          Juan Jose Garcia Cantero <juanjose.garcia@urjc.es>
+ *          Pablo Toharia <pablo.toharia@upm.es>
  *
  * This file is part of ShiFT
  *
@@ -19,34 +22,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
-#ifndef __SHIFT__REPRESENTATION__
-#define __SHIFT__REPRESENTATION__
-
-#include <vector>
-#include <fires/fires.h>
+#include "Representation.h"
 
 namespace shift
 {
-
-  class OpConfig
-  {
-  public:
-    virtual ~OpConfig( void ) {}
-  };
-
-  class Representation
-    : public fires::Object
-  {
-  public:
-    virtual ~Representation( void ) {}
-
-    virtual void preRender( OpConfig* config = nullptr );
-  };
-
-
-  typedef std::vector< shift::Representation* > Representations;
-
-
+  void Representation::preRender( OpConfig* /* config */ ) {}
 }
-
-#endif // __SHIFT__REPRESENTATION__
