@@ -80,19 +80,23 @@ namespace shift
   void Relationship::Establish( RelationshipOneToN& relOneToN,
                                 RelationshipOneToOne& relOneToOne,
                                 unsigned int entityOrig,
-                                unsigned int entityDest )
+                                unsigned int entityDest ,
+                                RelationshipProperties* properties )
   {
-    relOneToN[ entityOrig ].insert( entityDest );
-    relOneToOne[ entityDest ] = entityOrig;
+    relOneToN[ entityOrig ].entities.insert( entityDest );
+    relOneToOne[ entityDest ].entity = entityOrig;
+    relOneToOne[ entityDest ].properties = properties;
   }
 
   void Relationship::Establish( RelationshipOneToN& relOneToNOrig,
                                 RelationshipOneToN& relOneToNDest,
                                 unsigned int entityOrig,
-                                unsigned int entityDest )
+                                unsigned int entityDest,
+                                RelationshipProperties* properties )
   {
-    relOneToNOrig[ entityOrig ].insert( entityDest );
-    relOneToNDest[ entityDest ].insert( entityOrig );
+    relOneToNOrig[ entityOrig ].entities.insert( entityDest );
+    relOneToNDest[ entityDest ].entities.insert( entityOrig );
+    relOneToNDest[ entityDest ].properties = properties;
   }
 
 

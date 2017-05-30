@@ -31,6 +31,15 @@
 namespace shift
 {
 
+  class RelationshipProperties
+    : public fires::Object
+  {
+  public:
+    RelationshipProperties( void ) {}
+    virtual ~RelationshipProperties( void ) {}
+  };
+
+
   class RelationshipOneToOne;
   class RelationshipOneToN;
   class RelationshipNToN;
@@ -55,45 +64,63 @@ namespace shift
 
     static void Establish( RelationshipOneToN& relOneToN,
                            RelationshipOneToOne& relOneToOne,
-                           Entity* entityOrig, Entity* entityDest )
+                           Entity* entityOrig, Entity* entityDest,
+                           RelationshipProperties* properties = nullptr )
     {
       assert( entityOrig && entityDest );
       Establish( relOneToN, relOneToOne,
-                 entityOrig->entityGid( ), entityDest->entityGid( ) );
+                 entityOrig->entityGid( ), entityDest->entityGid( ),
+                 properties );
     }
     static void Establish( RelationshipOneToN& relOneToN,
                            RelationshipOneToOne& relOneToOne,
-                           unsigned int entityOrig, unsigned int entityDest );
+                           unsigned int entityOrig, unsigned int entityDest,
+                           RelationshipProperties* properties = nullptr );
 
     static void Establish( RelationshipOneToN& relOneToNOrig,
                            RelationshipOneToN& relOneToNDest,
-                           Entity* entityOrig, Entity* entityDest )
+                           Entity* entityOrig, Entity* entityDest,
+                           RelationshipProperties* properties = nullptr )
     {
       assert( entityOrig && entityDest );
       Establish( relOneToNOrig, relOneToNDest,
-                 entityOrig->entityGid( ), entityDest->entityGid( ) );
+                 entityOrig->entityGid( ), entityDest->entityGid( ),
+                 properties );
     }
     static void Establish( RelationshipOneToN& relOneToNOrig,
                            RelationshipOneToN& relOneToNDest,
-                           unsigned int entityOrig, unsigned int entityDest );
+                           unsigned int entityOrig, unsigned int entityDest,
+                           RelationshipProperties* properties = nullptr);
 protected:
     TCardinality _cardinality;
 
   };
 
+  typedef struct
+  {
+    Entity::EntityGid entity;
+    RelationshipProperties* properties;
+  } RelationshipOneToOneDest;
+
   class RelationshipOneToOne
     : public Relationship
-    , public std::unordered_map< unsigned int, unsigned int >
+    , public std::unordered_map< unsigned int,
+                                 RelationshipOneToOneDest >
   {
   public:
     SHIFT_API RelationshipOneToOne( void );
     SHIFT_API virtual RelationshipOneToOne* asOneToOne( void );
   };
 
+  typedef struct
+  {
+    std::unordered_set< Entity::EntityGid > entities;
+    RelationshipProperties* properties;
+  } RelationshipOneToNDest;
+
   class RelationshipOneToN
     : public Relationship
-    , public std::unordered_map< unsigned int,
-                                 std::unordered_set< unsigned int >>
+    , public std::unordered_map< unsigned int, RelationshipOneToNDest >
   {
   public:
     SHIFT_API RelationshipOneToN( void );
@@ -102,9 +129,11 @@ protected:
 
     class RelationshipNToN
     : public Relationship
-    , public std::vector< std::tuple< std::unordered_set< unsigned int >,
-                                      std::unordered_set< unsigned int >>>
-  {
+    , public std::vector< std::tuple<
+                            std::unordered_set< unsigned int >,
+                            std::unordered_set< unsigned int >,
+                            RelationshipProperties >>
+    {
   public:
     SHIFT_API RelationshipNToN( void );
     SHIFT_API virtual RelationshipNToN* asNToN( void );

@@ -35,6 +35,9 @@ namespace shift
     : public fires::Object
   {
   public:
+
+    typedef unsigned int EntityGid;
+
     SHIFT_API
     Entity( void );
 
@@ -42,10 +45,10 @@ namespace shift
     virtual ~Entity( void );
 
     SHIFT_API
-    unsigned int entityGid( void ) const;
+    EntityGid entityGid( void ) const;
 
   protected:
-    unsigned int _entityGid;
+    EntityGid _entityGid;
   };
 
 

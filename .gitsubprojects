@@ -1,2 +1,2 @@
 # -*- mode: cmake -*-
-git_subproject(FiReS git@gitlab.gmrv.es:retrieval/FiReS.git 0c86e07)
+git_subproject(FiReS git@gitlab.gmrv.es:retrieval/FiReS.git e57d3647)
