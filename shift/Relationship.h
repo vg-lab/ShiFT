@@ -64,36 +64,31 @@ namespace shift
 
     static void Establish( RelationshipOneToN& relOneToN,
                            RelationshipOneToOne& relOneToOne,
-                           Entity* entityOrig, Entity* entityDest,
-                           RelationshipProperties* properties = nullptr )
+                           Entity* entityOrig, Entity* entityDest )
     {
       assert( entityOrig && entityDest );
       Establish( relOneToN, relOneToOne,
-                 entityOrig->entityGid( ), entityDest->entityGid( ),
-                 properties );
+                 entityOrig->entityGid( ), entityDest->entityGid( ));
     }
     static void Establish( RelationshipOneToN& relOneToN,
                            RelationshipOneToOne& relOneToOne,
                            Entity::EntityGid entityOrig,
-                           Entity::EntityGid entityDest,
-                           RelationshipProperties* properties = nullptr );
+                           Entity::EntityGid entityDest );
 
     static void Establish( RelationshipOneToN& relOneToNOrig,
                            RelationshipOneToN& relOneToNDest,
-                           Entity* entityOrig, Entity* entityDest,
-                           RelationshipProperties* properties = nullptr )
+                           Entity* entityOrig, Entity* entityDest )
     {
       assert( entityOrig && entityDest );
       Establish( relOneToNOrig, relOneToNDest,
-                 entityOrig->entityGid( ), entityDest->entityGid( ),
-                 properties );
+                 entityOrig->entityGid( ), entityDest->entityGid( ));
     }
     static void Establish( RelationshipOneToN& relOneToNOrig,
                            RelationshipOneToN& relOneToNDest,
                            Entity::EntityGid entityOrig,
-                           Entity::EntityGid entityDest,
-                           RelationshipProperties* properties = nullptr);
-protected:
+                           Entity::EntityGid entityDest );
+
+  protected:
     TCardinality _cardinality;
 
   };
@@ -114,19 +109,24 @@ protected:
     SHIFT_API virtual RelationshipOneToOne* asOneToOne( void );
   };
 
-  typedef struct
-  {
-    std::unordered_set< Entity::EntityGid > entities;
-    RelationshipProperties* properties;
-  } RelationshipOneToNDest;
+  // typedef struct
+  // {
+  //   std::unordered_set< Entity::EntityGid > entities;
+  //   RelationshipProperties* properties;
+  // } RelationshipOneToNDest;
+  typedef std::pair< Entity::EntityGid, RelationshipProperties* >
+  RelationshipOneToNDest;
 
   class RelationshipOneToN
     : public Relationship
-    , public std::unordered_map< Entity::EntityGid, RelationshipOneToNDest >
+    , public std::unordered_map< Entity::EntityGid,
+                                 std::unordered_multimap< Entity::EntityGid,
+                                                          RelationshipProperties* >>
   {
   public:
     SHIFT_API RelationshipOneToN( void );
     SHIFT_API virtual RelationshipOneToN* asOneToN( void );
+
   };
 
     class RelationshipNToN
