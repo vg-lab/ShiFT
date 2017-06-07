@@ -1,7 +1,10 @@
 /*
  * Copyright (c) 2014-2016 GMRV/URJC/UPM.
  *
- * Authors: Pablo Toharia <pablo.toharia@upm.es>
+ * Authors: Juan Pedro Brito <juanpedro.brito@upm.es>
+ *          Sergio E. Galindo <sergio.galindo@urj.es>
+ *          Juan Jose Garcia Cantero <juanjose.garcia@urjc.es>
+ *          Pablo Toharia <pablo.toharia@upm.es>
  *
  * This file is part of ShiFT
  *
@@ -19,38 +22,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
-#ifndef __SHIFT__ENTITY__
-#define __SHIFT__ENTITY__
-
-#include "definitions.h"
-#include <shift/api.h>
-#include <fires/fires.h>
-
-#include <unordered_map>
+#include "Representation.h"
 
 namespace shift
 {
-
-  class Entity
-    : public fires::Object
-  {
-  public:
-
-    typedef unsigned int EntityGid;
-
-    SHIFT_API
-    Entity( void );
-
-    SHIFT_API
-    virtual ~Entity( void );
-
-    SHIFT_API
-    EntityGid entityGid( void ) const;
-
-  protected:
-    EntityGid _entityGid;
-  };
-
-
+  void Representation::preRender( OpConfig* /* config */ ) {}
 }
-#endif // __SHIFT__ENTITY__

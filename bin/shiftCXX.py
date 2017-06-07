@@ -32,10 +32,13 @@ def print_header( objectType, reps, rep, file ):
     if objectType == "Representation" :
         body += "    : public shift::Representation\n"
     else :
-        if objectType == "Entity" :
-            body += "    : public shift::Entity\n"
+        if objectType == "Relationship" :
+            body += "    : public shift::RelationshipProperties\n"
         else :
-            raise Exception('objectType unknown')
+            if objectType == "Entity" :
+                body += "    : public shift::Entity\n"
+            else :
+                raise Exception('objectType unknown')
     body += "  {\n"
     body += "  public:\n"
 

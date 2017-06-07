@@ -24,15 +24,24 @@
 
 #include <vector>
 #include <fires/fires.h>
+#include <shift/api.h>
 
 namespace shift
 {
+
+  class OpConfig
+  {
+  public:
+    virtual ~OpConfig( void ) {}
+  };
 
   class Representation
     : public fires::Object
   {
   public:
     virtual ~Representation( void ) {}
+
+    SHIFT_API virtual void preRender( OpConfig* config = nullptr );
   };
 
 

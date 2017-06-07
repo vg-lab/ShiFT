@@ -25,7 +25,7 @@
 namespace shift
 {
 
-  static unsigned int shiftEntityGid = 0;
+  static Entity::EntityGid shiftEntityGid = 0;
 
   Entity::Entity( void )
   {
@@ -36,7 +36,7 @@ namespace shift
   {
   }
 
-  unsigned int Entity::entityGid( void ) const
+  Entity::EntityGid Entity::entityGid( void ) const
   {
     return _entityGid;
   }

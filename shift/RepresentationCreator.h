@@ -37,6 +37,28 @@ namespace shift
                               std::set< shift::Entity* >>
     TRepsToEntities;
 
+  typedef std::tuple< shift::Representation*,
+                      shift::Entity*,
+                      shift::Entity*,
+                      shift::Representation*,
+                      shift::Representation*> TEntityRelationRep;
+
+  struct pairhash {
+  public:
+    template <typename T, typename U>
+    std::size_t operator()(const std::pair<T, U> &x) const
+    {
+      return std::hash<T>()(x.first) ^ std::hash<U>()(x.second);
+    }
+  };
+  typedef std::unordered_multimap< std::pair< unsigned int, unsigned int >,
+                                   TEntityRelationRep,
+                                   pairhash > TRelatedEntitiesReps;
+
+  typedef std::unordered_map< unsigned int,
+      std::pair< shift::Entity*, shift::Representation* >> TGidToEntitiesReps;
+
+
   class RepresentationCreator
   {
 
@@ -49,8 +71,16 @@ namespace shift
       shift::Representations& representations,
       shift::TEntitiesToReps& entitiesToReps,
       shift::TRepsToEntities& repsToEntities,
+      shift::TGidToEntitiesReps& gidsToEntitiesReps,
       bool linkEntitiesToReps = false,
       bool linkRepsToObjs = false ) = 0;
+
+    virtual void generateRelations(
+      const shift::Entities& entities,
+      const shift::TGidToEntitiesReps& gidsToEntitiesReps,
+      shift::TRelatedEntitiesReps& relatedEntitiesReps,
+      shift::Representations& relatedEntities,
+      const std::string& relationName ) = 0;
 
   };
 

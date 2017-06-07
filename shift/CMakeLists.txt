@@ -18,6 +18,7 @@ set( SHIFT_HEADERS
 set( SHIFT_SOURCES
   Entity.cpp
   Relationship.cpp
+  Representation.cpp
   ViewGraph.cpp
   )
 
