@@ -5,6 +5,7 @@ set( SHIFT_PUBLIC_HEADERS
   error.h
   Entity.h
   Entities.h
+  EntitiesTypes.h
   Relationship.h
   Representation.h
   RepresentationCreator.h

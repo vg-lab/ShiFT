@@ -13,19 +13,33 @@ if( NOT SHIFT_CXX )
   message( FATAL_ERROR "shiftCXX.py not found" )
 endif( )
 
-function( shift_generate_cxx __OBJ_TYPE__ __OBJ__ __JSON__ __OUT_DIR__ )
+function( shift_generate_cxx
+    __OBJ_TYPE__
+    __JSON__
+    __OUT_DIR__
+    __NAME__
+    __OBJS__ )
+
+  set(__OUTPUT_FILES__ "")
+  foreach( __OBJ__ ${__OBJS__} )
+    set( __OUTPUT_FILES__ ${__OUTPUT_FILES__}
+      ${__OUT_DIR__}/shift_${__OBJ__}.cpp
+      ${__OUT_DIR__}/shift_${__OBJ__}.h )
+  endforeach( )
+
   add_custom_command(
     COMMAND ${PYTHON_EXECUTABLE} ${SHIFT_CXX}
     ARGS
     ${__OBJ_TYPE__}
-    ${__OBJ__}
     ${__JSON__}
     ${__OUT_DIR__}
+    ${__NAME__}
+    ${__OBJS__}
     DEPENDS
     ${SHIFT_CXX}
     ${__JSON__}
     OUTPUT
-    ${__OUT_DIR__}/shift_${__OBJ__}.cpp
-    ${__OUT_DIR__}/shift_${__OBJ__}.h
+    ${__OUTPUT_FILES__}
     )
+
 endfunction( )
