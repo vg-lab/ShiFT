@@ -7,7 +7,7 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 cmake_minimum_required( VERSION 3.1 FATAL_ERROR )
-project( ShiFT VERSION 0.1.1 )
+project( ShiFT VERSION 0.1.2 )
 set( ShiFT_VERSION_ABI 2 )
 
 # Disable in source building

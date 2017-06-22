@@ -126,12 +126,30 @@ def print_impl( rep, file ):
             i = i + 1
     body += "  {\n"
 
+    types = rep[ "types" ]
+
     for prop in rep[ "properties" ] :
+
+        type = {}
+        for t in types :
+            if t[ "name" ] == prop[ "type" ] :
+                type = t
+                break;
+        enumValues = ""
+        if type != {} and type[ "name" ] == prop[ "type" ] and  type[ "class" ] == "enum" :
+            enumValues = ",\n      {"
+            values = type[ "values" ]
+            for value in values :
+                enumValues += "\n        { " + value + ", \"" + value + "\" }"
+                if values.index( value ) != len( values ) - 1 :
+                    enumValues += ", "
+            enumValues += "\n      }"
+
         body += "    fires::PropertyManager::registerProperty<" +\
                 prop[ "type" ] +\
                 ">( this, \"" +\
                 prop[ "name" ] + "\", " \
-                + prop[ "name" ].replace(" ", "") + "__ );\n"
+                + prop[ "name" ].replace(" ", "") + "__" + enumValues + " );\n"
     body += "  }\n"
     # Copy constructor
     body += "  " + rep[ "name" ] + "::" + rep[ "name" ] + \
