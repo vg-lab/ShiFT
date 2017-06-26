@@ -87,6 +87,9 @@ def print_header( objectType, reps, rep, file ):
     if objectType == "Entity" :
         body += "    virtual shift::Entity* create( void ) const final;\n"
 
+    # subentity method
+    if objectType == "Entity" and "subentity" in rep[ "flags" ] :
+        body += "    inline virtual bool isSubEntity( void ) final { return true; }\n"
     body += "  };\n"
     # body += "}\n"
     for namespace in namespaces :

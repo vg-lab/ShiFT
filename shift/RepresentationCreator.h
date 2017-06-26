@@ -82,6 +82,7 @@ namespace shift
       shift::Representations& relatedEntities,
       const std::string& relationName ) = 0;
 
+    virtual void clear( void ) { }
   };
 
 }

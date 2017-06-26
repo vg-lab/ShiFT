@@ -50,6 +50,9 @@ namespace shift
     SHIFT_API
     virtual Entity* create( void ) const = 0;
 
+    SHIFT_API
+    virtual bool isSubEntity( void ) { return false; };
+
   protected:
     EntityGid _entityGid;
   };
