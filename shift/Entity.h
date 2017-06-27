@@ -53,6 +53,16 @@ namespace shift
     SHIFT_API
     virtual bool isSubEntity( void ) { return false; };
 
+    typedef enum { EDITABLE, UNIQUE } TPropertyFlag;
+    typedef std::unordered_map< std::string,
+                                std::set< shift::Entity::TPropertyFlag >>
+    TPropertiesFlagsMap;
+
+    SHIFT_API
+    virtual bool hasPropertyFlag( const std::string& /* propertyLabel */,
+                                  TPropertyFlag /* flag */ ) const
+    { return false; };
+
   protected:
     EntityGid _entityGid;
   };

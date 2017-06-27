@@ -90,8 +90,23 @@ def print_header( objectType, reps, rep, file ):
     # subentity method
     if objectType == "Entity" and "subentity" in rep[ "flags" ] :
         body += "    inline virtual bool isSubEntity( void ) final { return true; }\n"
+
+    # propertyFlags method
+    if objectType == "Entity" :
+        body += "    inline virtual bool hasPropertyFlag( const std::string& propertyLabel,\n" + \
+                "                                         shift::Entity::TPropertyFlag flag ) const final\n" +\
+                "    {\n" + \
+                "      return ( " + rep[ "name"] + "::_propertyFlags[ propertyLabel ].count( flag ) > 0 );\n" + \
+                "    }\n\n"
+
+        # propertyFlags static map
+        body += "  protected:\n" + \
+                "    static shift::Entity::TPropertiesFlagsMap _propertyFlags; \n"
+
+    # end of class
     body += "  };\n"
     # body += "}\n"
+
     for namespace in namespaces :
         body += "}\n"
 
@@ -119,6 +134,26 @@ def print_impl( objectType, rep, file ):
     for namespace in namespaces :
         body += "namespace " + namespace + "\n"
         body += "{\n"
+
+    # property flags map initialization
+    if objectType == "Entity" :
+        body += "  shift::Entity::TPropertiesFlagsMap " + rep[ "name" ] + "::_propertyFlags =\n" + \
+                "  {\n"
+
+        for prop in rep[ "properties" ] :
+            body += "  { \"" + prop[ "name" ] + "\",\n    {\n"
+            if "flags" in prop :
+                for flag in prop[ "flags" ] :
+                    body += "       shift::Entity::TPropertyFlag::" + flag;
+                    if prop[ "flags"].index( flag ) != len( prop[ "flags"] ) - 1 :
+                        body += ","
+                    body += "\n"
+            body += "    }\n"
+            body += "  }"
+            if rep[ "properties"].index( prop ) != len( rep[ "properties" ] ) - 1 :
+                body += ","
+            body += "\n"
+        body += "  };\n\n"
 
     # Constructor
     body += "  " + rep[ "name" ] + "::" + rep[ "name" ] + "(\n"
