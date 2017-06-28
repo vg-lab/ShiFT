@@ -21,10 +21,8 @@
  */
 #include "Entity.h"
 
-
 namespace shift
 {
-
   static Entity::EntityGid shiftEntityGid = 0;
 
   Entity::Entity( void )
@@ -40,6 +38,4 @@ namespace shift
   {
     return _entityGid;
   }
-
-
 }
