@@ -19,44 +19,32 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  */
-#ifndef __SHIFT__ENTITY__
-#define __SHIFT__ENTITY__
+#ifndef __SHIFT__ENTITIES_TYPES__
+#define __SHIFT__ENTITIES_TYPES__
 
-#include "definitions.h"
+#include "Entity.h"
 #include <shift/api.h>
-#include <fires/fires.h>
-
-#include <unordered_map>
+#include <vector>
+#include <string>
+#include <tuple>
 
 namespace shift
 {
 
-  class Entity
-    : public fires::Object
+  class EntitiesTypes
   {
   public:
+    enum  { ENTITY_NAME = 0, OBJECT =1, IS_SUBENTITY };
+    typedef std::vector< std::tuple< std::string, Entity*, bool >> TEntitiesTypes;
 
-    typedef unsigned int EntityGid;
-
-    SHIFT_API
-    Entity( void );
-
-    SHIFT_API
-    virtual ~Entity( void );
-
-    SHIFT_API
-    EntityGid entityGid( void ) const;
-
-    SHIFT_API
-    virtual Entity* create( void ) const = 0;
-
-    SHIFT_API
-    virtual bool isSubEntity( void ) { return false; };
+    virtual ~EntitiesTypes( void ) {}
+    const TEntitiesTypes& entitiesTypes( void ) const { return _entitiesTypes; };
 
   protected:
-    EntityGid _entityGid;
+    TEntitiesTypes _entitiesTypes;
+
   };
 
-
 }
-#endif // __SHIFT__ENTITY__
+
+#endif
