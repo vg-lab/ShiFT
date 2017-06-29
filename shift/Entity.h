@@ -28,6 +28,8 @@
 
 #include <unordered_map>
 
+#include <typeinfo>
+
 namespace shift
 {
 
@@ -35,7 +37,6 @@ namespace shift
     : public fires::Object
   {
   public:
-
     typedef unsigned int EntityGid;
 
     SHIFT_API
@@ -52,6 +53,24 @@ namespace shift
 
     SHIFT_API
     virtual bool isSubEntity( void ) { return false; };
+
+    SHIFT_API
+    inline virtual bool isSameEntityType( const shift::Entity* entity ) const
+    {
+      return typeid( *this ) == typeid( *entity );
+    }
+
+    typedef enum { EDITABLE, UNIQUE } TPropertyFlag;
+    typedef std::unordered_map< std::string,
+                                std::set< shift::Entity::TPropertyFlag >>
+    TPropertiesFlagsMap;
+    
+    SHIFT_API
+    virtual bool hasPropertyFlag( const std::string& /* propertyLabel */,
+                                  TPropertyFlag /* flag */ ) const
+    {
+      return false;
+    };
 
   protected:
     EntityGid _entityGid;
