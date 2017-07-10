@@ -7,6 +7,7 @@ set( SHIFT_PUBLIC_HEADERS
   Entities.h
   EntitiesTypes.h
   Relationship.h
+  RelationshipPropertiesTypes.h
   Representation.h
   RepresentationCreator.h
   View.h
