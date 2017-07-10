@@ -87,6 +87,9 @@ def print_header( objectType, reps, rep, file ):
     if objectType == "Entity" :
         body += "    virtual shift::Entity* create( void ) const final;\n"
 
+    if objectType == "Relationship" :
+        body += "    virtual shift::RelationshipProperties* create( void ) const final;\n"
+    
     # subentity method
     if objectType == "Entity" and "subentity" in rep[ "flags" ] :
         body += "    inline virtual bool isSubEntity( void ) final { return true; }\n"
@@ -211,6 +214,12 @@ def print_impl( objectType, rep, file ):
         body += "    return new " + rep[ "name" ] + "( *this );\n"
         body += "  }\n"
 
+    if objectType == "Relationship" :
+        body += "  shift::RelationshipProperties* " + rep[ "name" ] + "::create( void ) const \n"
+        body += "  {\n"
+        body += "    return new " + rep[ "name" ] + "( *this );\n"
+        body += "  }\n"
+
     for namespace in namespaces :
         body += "}\n"
 
@@ -243,6 +252,11 @@ def main( argv ) :
 
         header_define = "__" + data[ "namespace" ].upper( ).replace("::", "__") + \
                         "__" + data[ "name" ].upper( ) + "__"
+
+        if objectType == "Entity" :
+            header_define += "ENTITIES__"
+        elif objectType == "Relationship" :
+            header_define += "RELATIONSHIPS__"
         domainContent += "#ifndef " + header_define + "\n"
         domainContent += "#define " + header_define + "\n"
 
@@ -271,6 +285,24 @@ def main( argv ) :
 
             domainContent += "};\n"
 
+        if objectType == "Relationship" :
+            domainContent += "class RelationshipPropertiesTypes : public shift::RelationshipPropertiesTypes\n" + \
+                             "{\n" \
+                             "public:\n" \
+                             "  RelationshipPropertiesTypes( void )\n" \
+                             "  {\n"
+            for rep in data["reps"] :
+                if rep["name"] in repName:
+                    domainContent += "    this->_relationshipPropertiesTypes[\"" + \
+                                     rep[ "relationship" ] + "\"] = new " +\
+                                     rep[ "namespace" ] + "::" + rep ["name" ] + \
+                                     " ;\n"
+            domainContent += "  }\n" \
+
+            domainContent += "  virtual ~RelationshipPropertiesTypes( void )\n" \
+                             "  {}\n"
+
+            domainContent += "};\n"
 
         namespaces = data[ "namespace" ].split( "::" )
         for namespace in namespaces :
