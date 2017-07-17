@@ -1,3 +1,7 @@
+# ShiFT
+
+## git master
+[!7]: Added new method as callback when new entity is added or an entity is updated
 [!6]: Added relationship properties types container and automatic generation of it via shiftCXX.py
 [!5]: Added property flags management. Added isSameEntityType to compare Entity types
 [!4]: Added entities types container and automatic generation of it via shiftCXX.py. Added isSubEntity method to Entity and empty virtual clear method to RepresentationCreator
