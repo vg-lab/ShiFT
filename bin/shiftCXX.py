@@ -2,6 +2,14 @@
 import json
 import sys
 
+def findPropAttrib( reps, repName, propName, attribName ) :
+    for rep in reps :
+        if rep[ "name" ] == repName :
+            for prop in rep[ "properties" ] :
+                if prop[ "name" ] == propName and attribName in prop :
+                    return prop[ attribName ]
+    raise Exception('ERROR: findPropAttrib failed')
+
 def print_header( objectType, reps, rep, file ):
     print( "shiftCXX: Generating " + file )
     header = ""
@@ -85,11 +93,15 @@ def print_header( objectType, reps, rep, file ):
 
     # create method for entities
     if objectType == "Entity" :
-        body += "    virtual shift::Entity* create( void ) const final;\n"
+        body += "    virtual shift::Entity* create( void ) const override;\n"
+
+    # create subentities method for entities
+    if objectType == "Entity" :
+        body += "    virtual void createSubEntities( \n" + \
+                "      std::vector< shift::Entity* >& subEntities ) const override;\n"
 
     if objectType == "Relationship" :
-        body += "    virtual shift::RelationshipProperties* create( void ) const final;\n"
-    
+        body += "    virtual shift::RelationshipProperties* create( void ) const override;\n"
     # subentity method
     if objectType == "Entity" and "subentity" in rep[ "flags" ] :
         body += "    inline virtual bool isSubEntity( void ) final { return true; }\n"
@@ -125,7 +137,7 @@ def print_header( objectType, reps, rep, file ):
     f.write( body )
 
 
-def print_impl( objectType, rep, file ):
+def print_impl( objectType, reps, rep, file ):
     print( "shiftCXX: Generating " + file )
     includes = ""
     body = ""
@@ -213,6 +225,72 @@ def print_impl( objectType, rep, file ):
         body += "  {\n"
         body += "    return new " + rep[ "name" ] + "( *this );\n"
         body += "  }\n"
+
+    # create subentities method
+    if objectType == "Entity" :
+        body += "  void " + rep[ "name" ] + \
+                "::createSubEntities( \n" + \
+                "    std::vector< shift::Entity* >& subentities ) const \n"
+        body += "  { \n    (void) subentities; \n"
+        nbEntitiesCreated = 0
+        subEntCode = ""
+        countEntitiesCode = "    unsigned int nbEntities = 0;\n"
+        if "subentities" in rep:
+            for subentity in rep[ "subentities" ] :
+                includes += "#include <shift_" + subentity[ "name" ] + ".h>\n"
+
+                closeLoop = False;
+                if "repeat" in subentity:
+                    if  subentity[ "repeat" ][ "type" ] == "range" :
+                        loopCode = "    for ( auto " + \
+                                   subentity[ "repeat" ][ "name" ] + " = " + \
+                                   subentity[ "repeat" ][ "init" ] + "; " + \
+                                   subentity[ "repeat" ][ "name" ] + " <= " + \
+                                   subentity[ "repeat" ][ "end" ] + "; " + \
+                                   subentity[ "repeat" ][ "name" ] + " += " + \
+                                   subentity[ "repeat" ][ "inc" ] + " ) \n    "
+                        closeLoop = True;
+                        subEntCode += loopCode + "{\n"
+                        countEntitiesCode += loopCode + "  ++nbEntities;\n"
+                        # print( len( range( int( subentity[ "repeat" ][ "init" ] ),
+                        #               int( subentity[ "repeat" ][ "end" ] ),
+                        #               int( subentity[ "repeat" ][ "inc" ] ))))
+                        # nbEntitiesCreated += len( range( int( subentity[ "repeat" ][ "init" ] ),
+                        #                                  int( subentity[ "repeat" ][ "end" ] ),
+                        #                                  int( subentity[ "repeat" ][ "inc" ] )))
+
+                subEntCode += "      shift::Entity* entity = new " + subentity[ "name" ] + ";\n"
+                subEntCode += "      subentities.emplace_back( entity );\n"
+                if "properties" in subentity :
+                    for prop in subentity[ "properties" ] :
+                        if prop[ "type" ] == "linked" :
+                            subEntCode += "      entity->registerProperty( \n        \"" + \
+                                          prop[ "property" ] + "\",\n         ( " + \
+                                          findPropAttrib( reps, subentity[ "name" ], \
+                                                    prop[ "property" ], "type" ) + " )"
+                            subEntCode += " this->getProperty( \"" + \
+                                          prop[ "origin" ] + "\" ).value< " +\
+                                          findPropAttrib( reps, rep[ "name" ], \
+                                                    prop[ "origin" ], "type" ) + \
+                                    " >( ));\n"
+                        if prop[ "type" ] == "fixed" :
+                            subEntCode += "      entity->registerProperty( \n        \"" + \
+                                          prop[ "property" ] + "\",\n         " + \
+                                          prop[ "value" ] + " );\n"
+
+                if closeLoop :
+                    subEntCode += "    }\n"
+                # subEntCode += "}"
+                # subEntCode += subentity[ "name" ]
+            body += countEntitiesCode
+            body += "    subentities.reserve( subentities.size( ) + nbEntities );\n\n"
+            body += subEntCode
+
+        body += "  }\n"
+
+        # if nbEntitiesCreated > 0 :
+        #     body += "subentities.reserve( subentities.size( ) + " + \
+        #             str( nbEntitiesCreated ) + " );\n"
 
     if objectType == "Relationship" :
         body += "  shift::RelationshipProperties* " + rep[ "name" ] + "::create( void ) const \n"
@@ -326,7 +404,7 @@ def main( argv ) :
                               rep, outputdir + \
                               "/shift_" + rep[ "name" ] + ".h" )
                 print_impl( objectType, \
-                            rep, outputdir + "/shift_" + rep[ "name" ] + \
+                            data["reps"], rep, outputdir + "/shift_" + rep[ "name" ] + \
                             ".cpp" );
 
 if __name__ == "__main__":

@@ -7,8 +7,8 @@
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 cmake_minimum_required( VERSION 3.1 FATAL_ERROR )
-project( ShiFT VERSION 0.1.6 )
-set( ShiFT_VERSION_ABI 6 )
+project( ShiFT VERSION 0.1.7 )
+set( ShiFT_VERSION_ABI 7 )
 
 # Disable in source building
 if( "${PROJECT_SOURCE_DIR}" STREQUAL "${PROJECT_BINARY_DIR}" )

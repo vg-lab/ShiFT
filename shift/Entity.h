@@ -51,6 +51,10 @@ namespace shift
     SHIFT_API
     virtual Entity* create( void ) const = 0;
 
+    virtual void createSubEntities(
+      std::vector< shift::Entity* >& /* subentities */ ) const
+    {}
+
     SHIFT_API
     virtual bool isSubEntity( void ) { return false; };
 
@@ -64,7 +68,7 @@ namespace shift
     typedef std::unordered_map< std::string,
                                 std::set< shift::Entity::TPropertyFlag >>
     TPropertiesFlagsMap;
-    
+
     SHIFT_API
     virtual bool hasPropertyFlag( const std::string& /* propertyLabel */,
                                   TPropertyFlag /* flag */ ) const
