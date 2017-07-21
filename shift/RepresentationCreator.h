@@ -83,6 +83,8 @@ namespace shift
       const std::string& relationName ) = 0;
 
     virtual void clear( void ) { }
+
+    virtual void entityUpdatedOrCreated( shift::Entity* /* entity */ ) { }
   };
 
 }

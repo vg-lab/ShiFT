@@ -292,7 +292,7 @@ def main( argv ) :
                              "  RelationshipPropertiesTypes( void )\n" \
                              "  {\n"
             for rep in data["reps"] :
-                if rep["name"] in repName:
+                if rep["name"] in repName and "relationship" in rep:
                     domainContent += "    this->_relationshipPropertiesTypes[\"" + \
                                      rep[ "relationship" ] + "\"] = new " +\
                                      rep[ "namespace" ] + "::" + rep ["name" ] + \
