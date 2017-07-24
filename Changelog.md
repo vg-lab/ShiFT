@@ -1,6 +1,7 @@
 # ShiFT
 
 ## git master
+[!8]: Added support for creating subentities when creating a new entity
 [!7]: Added new method as callback when new entity is added or an entity is updated
 [!6]: Added relationship properties types container and automatic generation of it via shiftCXX.py
 [!5]: Added property flags management. Added isSameEntityType to compare Entity types

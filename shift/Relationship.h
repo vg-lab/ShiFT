@@ -72,6 +72,8 @@ namespace shift
       Establish( relOneToN, relOneToOne,
                  entityOrig->entityGid( ), entityDest->entityGid( ));
     }
+
+    SHIFT_API
     static void Establish( RelationshipOneToN& relOneToN,
                            RelationshipOneToOne& relOneToOne,
                            Entity::EntityGid entityOrig,
@@ -85,6 +87,8 @@ namespace shift
       Establish( relOneToNOrig, relOneToNDest,
                  entityOrig->entityGid( ), entityDest->entityGid( ));
     }
+
+    SHIFT_API
     static void Establish( RelationshipOneToN& relOneToNOrig,
                            RelationshipOneToN& relOneToNDest,
                            Entity::EntityGid entityOrig,
