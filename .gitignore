@@ -7,7 +7,9 @@ doc/latex
 .*.swp
 #*
 *#*
-CMake/common
 FiReS
 *compile_commands.json*
 *plist
+ci.*
+build*
+.ciscript
