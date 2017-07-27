@@ -1,6 +1,7 @@
 # ShiFT
 
 ## git master
+[!9]: Bump CMake/common and use it as a submodule
 [!8]: Added support for creating subentities when creating a new entity
 [!7]: Added new method as callback when new entity is added or an entity is updated
 [!6]: Added relationship properties types container and automatic generation of it via shiftCXX.py
