@@ -20,13 +20,15 @@ function( shift_generate_cxx
     __NAME__
     __OBJS__ )
 
-  set(__OUTPUT_FILES__ "")
+  set( __OUTPUT_FILES__ ${__OUTPUT_FILES__} ${__NAME__}.h ${__NAME__}.cpp )
   foreach( __OBJ__ ${__OBJS__} )
     set( __OUTPUT_FILES__ ${__OUTPUT_FILES__}
       ${__OUT_DIR__}/shift_${__OBJ__}.cpp
       ${__OUT_DIR__}/shift_${__OBJ__}.h )
     set_property(SOURCE ${__OUT_DIR__}/shift_${__OBJ__}.cpp PROPERTY SKIP_AUTOGEN ON)
   endforeach( )
+
+  set( __NAME__ ${__NAME__}.h)
 
   add_custom_command(
     COMMAND ${PYTHON_EXECUTABLE} ${SHIFT_CXX}
