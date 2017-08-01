@@ -57,7 +57,7 @@ def print_header( objectType, reps, rep, file ):
             body += "    typedef enum\n"
             body += "    {\n"
             for value in type[ "values" ] :
-                body += "       " + value + ",\n"
+                body += "       " + value.replace( " ", "_" ).replace( "-", "_" ) + ",\n"
             body += "       " + type[ "name" ].upper( ) + "_UNDEFINED\n"
             body += "    } " + type[ "name" ] + ";\n\n"
 
@@ -197,7 +197,8 @@ def print_impl( objectType, reps, rep, file ):
             enumValues = ",\n      {"
             values = type[ "values" ]
             for value in values :
-                enumValues += "\n        { " + value + ", \"" + value + "\" }"
+                enumValues += "\n        { " + value.replace( " ", "_" ).replace( "-", "_" ) +\
+                              ", \"" + value + "\" }"
                 if values.index( value ) != len( values ) - 1 :
                     enumValues += ", "
             enumValues += "\n      }"
