@@ -32,7 +32,7 @@ namespace shift
 {
 
   class RelationshipProperties
-    : public fires::Object
+    : public Properties
   {
   public:
     RelationshipProperties( void ) {}
