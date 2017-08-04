@@ -84,7 +84,19 @@ namespace shift
 
     virtual void clear( void ) { }
 
-    virtual void entityUpdatedOrCreated( shift::Entity* /* entity */ ) { }
+    // Should return true if any changes have occurred
+    virtual bool entityUpdatedOrCreated( shift::Entity* /* entity */ )
+    {
+      return false;
+    }
+
+    // Should return true if any changes have occurred
+    virtual bool relationshipUpdatedOrCreated(
+      shift::RelationshipProperties* /* relProperties */ )
+    {
+      return false;
+    }
+
   };
 
 }

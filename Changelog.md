@@ -1,6 +1,7 @@
 # ShiFT
 
 ## git master
+[!11]: Added subproperties constraints. Added callback for added or modified relationship.
 [!9]: Bump CMake/common and use it as a submodule
 [!8]: Added support for creating subentities when creating a new entity
 [!7]: Added new method as callback when new entity is added or an entity is updated
