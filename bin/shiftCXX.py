@@ -57,7 +57,7 @@ def print_header( objectType, reps, rep, file ):
             body += "    typedef enum\n"
             body += "    {\n"
             for value in type[ "values" ] :
-                body += "       " + value + ",\n"
+                body += "       " + value.replace( " ", "_" ).replace( "-", "_" ) + ",\n"
             body += "       " + type[ "name" ].upper( ) + "_UNDEFINED\n"
             body += "    } " + type[ "name" ] + ";\n\n"
 
@@ -105,6 +105,10 @@ def print_header( objectType, reps, rep, file ):
     # subentity method
     if objectType == "Entity" and "subentity" in rep[ "flags" ] :
         body += "    inline virtual bool isSubEntity( void ) final { return true; }\n"
+
+    body += "    virtual bool evalConstraint(\n" +\
+            "      const shift::Properties::PropertyConstraintType& constraintType,\n" + \
+            "      const std::string& propertyName ) const final;\n"
 
     # propertyFlags method
     if objectType == "Entity" :
@@ -197,7 +201,8 @@ def print_impl( objectType, reps, rep, file ):
             enumValues = ",\n      {"
             values = type[ "values" ]
             for value in values :
-                enumValues += "\n        { " + value + ", \"" + value + "\" }"
+                enumValues += "\n        { " + value.replace( " ", "_" ).replace( "-", "_" ) +\
+                              ", \"" + value + "\" }"
                 if values.index( value ) != len( values ) - 1 :
                     enumValues += ", "
             enumValues += "\n      }"
@@ -297,6 +302,32 @@ def print_impl( objectType, reps, rep, file ):
         body += "  {\n"
         body += "    return new " + rep[ "name" ] + "( *this );\n"
         body += "  }\n"
+
+
+    body += "    bool " + rep[ "name" ] + "::evalConstraint(\n" +\
+            "      const shift::Properties::PropertyConstraintType& constraintType,\n" + \
+            "      const std::string& propertyName ) const\n"
+    body += "  {\n"
+    body += "    (void) constraintType; (void) propertyName;\n"
+    body += "    if ( constraintType == shift::Properties::SUBPROPERTY )\n    {\n"
+
+    for prop in rep[ "properties" ] :
+        if "constraints" in prop :
+            body += "      if ( propertyName == \"" + prop[ "name" ] + "\" )\n"
+            body += "      {\n"
+            for constraint in prop[ "constraints" ] :
+                body += "        bool ret = true;\n"
+                if constraint[ "type" ] == "subproperty" :
+                    body += "        ret = ret && ( this->getProperty( \"" + \
+                            constraint[ "parentProperty" ] + "\").value< " + \
+                            findPropAttrib( reps, rep[ "name" ], \
+                                            constraint[ "parentProperty" ], "type" ) + \
+                            " >( ) == " + constraint[ "parentValue" ].replace( " ", "_" ).replace( "-", "_" ) + " );\n"
+            body += "      return ret;\n"
+            body += "      }\n"
+    body += "    }\n"
+    body += "    return true;\n"
+    body += "  }\n"
 
     for namespace in namespaces :
         body += "}\n"

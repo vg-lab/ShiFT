@@ -33,8 +33,25 @@
 namespace shift
 {
 
+  class Properties : public fires::Object
+  {
+  public:
+    typedef enum
+    {
+      SUBPROPERTY
+    } PropertyConstraintType;
+
+    virtual bool evalConstraint(
+      const PropertyConstraintType& /* constraintType */,
+      const std::string& /* propertyName */ ) const
+    {
+      return true;
+    }
+
+  };
+
   class Entity
-    : public fires::Object
+    : public Properties
   {
   public:
     typedef unsigned int EntityGid;

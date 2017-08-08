@@ -30,7 +30,6 @@
 
 namespace shift
 {
-
   class RelationshipPropertiesTypes
   {
   public:
