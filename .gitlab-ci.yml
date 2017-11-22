@@ -21,11 +21,11 @@ OSX:
   - hostname
   - uname -a
   - export CMAKE_EXTRA_ARGS="-DCLONE_SUBPROJECTS=ON"
-  - export CMAKE_EXTRA_TARGETS="test"
+  #- export CMAKE_EXTRA_TARGETS="test"
   - export BUILD_GENERATOR="Unix Makefiles"
   - bash .gitlabci.sh
  tags:
-  - osx
+  - osx-sierra
 
 Win7-vs14:
  stage: build
@@ -34,7 +34,7 @@ Win7-vs14:
   - set CMAKE_EXTRA_TARGETS=RUN_TESTS
   - set RUN_TESTS=1
   - set BUILD_GENERATOR=Visual Studio 14 Win64
-  - set PATH=%PATH%;"c:\\Program Files (x86)\\Git\\bin"
+  - set PATH=%PATH%;"c:\\Program Files\\Git\\bin"
   - set CMAKE_EXTRA_ARGS=-DCLONE_SUBPROJECTS=ON
   - bash.exe --login .gitlabci.sh
  tags:
