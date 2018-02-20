@@ -32,7 +32,7 @@
 namespace shift
 {
 
-  class Entities
+  class SHIFT_API Entities
   {
   public:
     // Entities indexed by its gid
@@ -93,7 +93,7 @@ namespace shift
 
   };
 
-  class EntitiesWithRelationships
+  class SHIFT_API EntitiesWithRelationships
     : public Entities
   {
   public:

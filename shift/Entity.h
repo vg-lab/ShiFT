@@ -73,7 +73,7 @@ namespace shift
     {}
 
     SHIFT_API
-    virtual bool isSubEntity( void ) { return false; };
+    virtual bool isSubEntity( void ) { return false; }
 
     SHIFT_API
     inline virtual bool isSameEntityType( const shift::Entity* entity ) const
@@ -91,7 +91,7 @@ namespace shift
                                   TPropertyFlag /* flag */ ) const
     {
       return false;
-    };
+    }
 
   protected:
     EntityGid _entityGid;

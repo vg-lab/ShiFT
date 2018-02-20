@@ -31,7 +31,7 @@
 namespace shift
 {
 
-  class EntitiesTypes
+  class SHIFT_API EntitiesTypes
   {
   public:
     enum  { ENTITY_NAME = 0, OBJECT =1, IS_SUBENTITY };
