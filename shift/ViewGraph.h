@@ -36,7 +36,7 @@ namespace shift
 
     typedef std::unordered_set< ViewSPtr > TSetOfViews;
 
-    virtual ~ViewGraph( void ) {};
+    virtual ~ViewGraph( void ) {}
     void registerConnection( const ViewSPtr origin,
                              const ViewSPtr dest );
     const TSetOfViews& connections( const ViewSPtr origin ) const;

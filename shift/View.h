@@ -32,7 +32,7 @@ namespace shift
 
 
   public:
-    virtual ~View( void ) {};
+    virtual ~View( void ) {}
 
 
   };

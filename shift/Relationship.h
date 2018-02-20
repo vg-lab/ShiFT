@@ -37,7 +37,7 @@ namespace shift
   public:
     RelationshipProperties( void ) {}
     SHIFT_API virtual RelationshipProperties* create( void ) const
-    { return nullptr; };
+    { return nullptr; }
     virtual ~RelationshipProperties( void ) {}
   };
 
