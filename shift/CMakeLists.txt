@@ -18,6 +18,7 @@ set( SHIFT_HEADERS
   )
 
 set( SHIFT_SOURCES
+  Entities.cpp
   Entity.cpp
   Relationship.cpp
   Representation.cpp

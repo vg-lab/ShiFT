@@ -112,6 +112,12 @@ namespace shift
     }
     //! Relations are referenced by a name in a string
     TRelationshipMap _relationships;
+
+    static shift::EntitiesWithRelationships& entities( void );
+
+  private:
+    static EntitiesWithRelationships _entities;
+
   };
 
 }

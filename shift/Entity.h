@@ -93,6 +93,11 @@ namespace shift
       return false;
     }
 
+    typedef enum { CHILDREN_SUM, CHILDREN_MEAN } TAutoUpdatePropertyOp;
+
+    virtual void autoUpdateProperty( TAutoUpdatePropertyOp /* op */,
+                                     const std::string& /* propertyLabel */ ) {};
+
   protected:
     EntityGid _entityGid;
   };
