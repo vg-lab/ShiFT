@@ -23,4 +23,10 @@
 #ifdef Win32
 typedef unsigned int uint;
 #endif
+
+namespace shift
+{
+    typedef unsigned int EntityGid;
+}
+
 #endif

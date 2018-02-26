@@ -23,7 +23,7 @@
 
 namespace shift
 {
-  static Entity::EntityGid shiftEntityGid = 0;
+  static EntityGid shiftEntityGid = 0;
 
   Entity::Entity( void )
   {
@@ -34,8 +34,72 @@ namespace shift
   {
   }
 
-  Entity::EntityGid Entity::entityGid( void ) const
+  EntityGid Entity::entityGid( void ) const
   {
     return _entityGid;
   }
+
+  void Entity::autoUpdatePropertyWithRelatedEntities(
+      const std::string& relName,
+      const std::vector< std::string >& relatedEntitiesNames,
+      TAutoUpdatePropertyOp op,
+      const std::string& origPropertyLabel,
+      const std::string& destPropertyLabel )
+  {
+    const auto& rel =
+      *( shift::EntitiesWithRelationships::entities( ).relationships( )[ relName ]->asOneToN( ));
+    const auto& relEntitiesIt = rel.find( this->entityGid( ));
+    if ( relEntitiesIt == rel.end( ))
+      return;
+    const auto& relEntities = relEntitiesIt->second;
+    const auto& ents = shift::EntitiesWithRelationships::entities( );
+    fires::Objects objs;
+    for ( const auto& relEntGid : relEntities )
+    {
+      const auto& entsMap = ents.map( );
+      const auto& relEntIt = entsMap.find( relEntGid.first );
+      if ( relEntIt == entsMap.end( )) continue;
+      for ( const auto& relatedEntitiesName : relatedEntitiesNames )
+        if ( relEntIt->second->entityName( ) == relatedEntitiesName )
+          if ( relEntIt->second->hasProperty( origPropertyLabel ) ||
+               op == TAutoUpdatePropertyOp::COUNT )
+            objs.add( relEntIt->second );
+    }
+
+    if ( op == TAutoUpdatePropertyOp::COUNT )
+    {
+      this->setProperty( destPropertyLabel, uint( objs.size( )));
+      return;
+    }
+
+    auto aggregator = fires::PropertyManager::getAggregator( origPropertyLabel );
+    fires::Aggregate aggregate;
+    fires::AggregateConfig aggregateConfig;
+    fires:: PropertyAggregator::TAggregation aggType = fires::PropertyAggregator::SUM;
+    switch ( op )
+    {
+    case TAutoUpdatePropertyOp::SUM:
+      aggType = fires::PropertyAggregator::SUM;
+      break;
+    case TAutoUpdatePropertyOp::MEAN:
+      aggType = fires::PropertyAggregator::MEAN;
+      break;
+    case TAutoUpdatePropertyOp::MAX:
+      aggType = fires::PropertyAggregator::MAX;
+      break;
+    case TAutoUpdatePropertyOp::MIN:
+      aggType = fires::PropertyAggregator::MIN;
+      break;
+    default:
+      assert( false );
+    }
+
+    aggregateConfig.addProperty( origPropertyLabel, aggregator, aggType );
+
+    aggregate.eval( objs, aggregateConfig );
+    assert( objs.size( ) == 1 );
+    this->setProperty( destPropertyLabel,
+                       objs[0]->getProperty( origPropertyLabel ));
+  }
+
 }

@@ -23,13 +23,17 @@
 #define __SHIFT__RELATIONSHIP__
 
 #include "Entity.h"
+#include "Properties.h"
 #include <shift/api.h>
 #include <unordered_set>
 #include <unordered_map>
+#include <vector>
 #include <assert.h>
 
 namespace shift
 {
+  class Entity;
+
 
   class RelationshipProperties
     : public Properties
@@ -57,80 +61,62 @@ namespace shift
       N_TO_N
     } TCardinality;
 
-    SHIFT_API Relationship( void );
+    SHIFT_API Relationship( const std::string& name = "" );
     SHIFT_API virtual ~Relationship( void ) {}
     SHIFT_API TCardinality cardinality( void ) const;
     SHIFT_API virtual RelationshipOneToOne* asOneToOne( void );
     SHIFT_API virtual RelationshipOneToN* asOneToN( void );
     SHIFT_API virtual RelationshipNToN* asNToN( void );
-
-    static void Establish( RelationshipOneToN& relOneToN,
-                           RelationshipOneToOne& relOneToOne,
-                           Entity* entityOrig, Entity* entityDest )
-    {
-      assert( entityOrig && entityDest );
-      Establish( relOneToN, relOneToOne,
-                 entityOrig->entityGid( ), entityDest->entityGid( ));
-    }
+    const std::string& name( void ) const { return _name; }
 
     SHIFT_API
     static void Establish( RelationshipOneToN& relOneToN,
                            RelationshipOneToOne& relOneToOne,
-                           Entity::EntityGid entityOrig,
-                           Entity::EntityGid entityDest );
-
-    static void Establish( RelationshipOneToN& relOneToNOrig,
-                           RelationshipOneToN& relOneToNDest,
-                           Entity* entityOrig, Entity* entityDest )
-    {
-      assert( entityOrig && entityDest );
-      Establish( relOneToNOrig, relOneToNDest,
-                 entityOrig->entityGid( ), entityDest->entityGid( ));
-    }
+                           Entity* entityOrig, Entity* entityDest );
 
     SHIFT_API
     static void Establish( RelationshipOneToN& relOneToNOrig,
                            RelationshipOneToN& relOneToNDest,
-                           Entity::EntityGid entityOrig,
-                           Entity::EntityGid entityDest );
+                           Entity* entityOrig, Entity* entityDest );
 
   protected:
     TCardinality _cardinality;
+    std::string _name;
 
   };
 
   typedef struct
   {
-    Entity::EntityGid entity;
+    EntityGid entity;
     RelationshipProperties* properties;
   } RelationshipOneToOneDest;
 
   class RelationshipOneToOne
     : public Relationship
-    , public std::unordered_map< Entity::EntityGid,
+    , public std::unordered_map< EntityGid,
                                  RelationshipOneToOneDest >
   {
   public:
-    SHIFT_API RelationshipOneToOne( void );
+    SHIFT_API RelationshipOneToOne( const std::string& name );
     SHIFT_API virtual RelationshipOneToOne* asOneToOne( void );
   };
 
   // typedef struct
   // {
-  //   std::unordered_set< Entity::EntityGid > entities;
+  //   std::unordered_set< EntityGid > entities;
   //   RelationshipProperties* properties;
   // } RelationshipOneToNDest;
-  typedef std::pair< Entity::EntityGid, RelationshipProperties* >
+  typedef std::pair< EntityGid, RelationshipProperties* >
   RelationshipOneToNDest;
 
   class RelationshipOneToN
     : public Relationship
-    , public std::unordered_map< Entity::EntityGid,
-                                 std::unordered_multimap< Entity::EntityGid,
+    , public std::unordered_map< EntityGid,
+                                 std::unordered_multimap< EntityGid,
                                                           RelationshipProperties* >>
   {
   public:
-    SHIFT_API RelationshipOneToN( void );
+    SHIFT_API RelationshipOneToN( const std::string& name );
     SHIFT_API virtual RelationshipOneToN* asOneToN( void );
 
   };
@@ -138,12 +124,12 @@ namespace shift
     class RelationshipNToN
     : public Relationship
     , public std::vector< std::tuple<
-                            std::unordered_set< Entity::EntityGid >,
-                            std::unordered_set< Entity::EntityGid >,
+                            std::unordered_set< EntityGid >,
+                            std::unordered_set< EntityGid >,
                             RelationshipProperties >>
     {
   public:
-    SHIFT_API RelationshipNToN( void );
+    SHIFT_API RelationshipNToN( const std::string& name );
     SHIFT_API virtual RelationshipNToN* asNToN( void );
   };
 

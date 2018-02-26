@@ -24,8 +24,9 @@
 namespace shift
 {
 
-  Relationship::Relationship( void )
+  Relationship::Relationship( const std::string& name_ )
     : _cardinality( UNDEFINED )
+    , _name( name_ )
   {
   }
 
@@ -47,7 +48,8 @@ namespace shift
     return nullptr;
   }
 
-  RelationshipOneToOne::RelationshipOneToOne( void )
+  RelationshipOneToOne::RelationshipOneToOne( const std::string& name_ )
+    : Relationship( name_ )
   {
     _cardinality = ONE_TO_ONE;
   }
@@ -57,7 +59,8 @@ namespace shift
     return this;
   }
 
-  RelationshipOneToN::RelationshipOneToN( void )
+  RelationshipOneToN::RelationshipOneToN( const std::string& name_ )
+    : Relationship( name_ )
   {
     _cardinality = ONE_TO_N;
   }
@@ -67,7 +70,8 @@ namespace shift
     return this;
   }
 
-  RelationshipNToN::RelationshipNToN( void )
+  RelationshipNToN::RelationshipNToN( const std::string& name_ )
+    : Relationship( name_ )
   {
     _cardinality = N_TO_N;
   }
@@ -79,24 +83,36 @@ namespace shift
 
   void Relationship::Establish( RelationshipOneToN& relOneToN,
                                 RelationshipOneToOne& relOneToOne,
-                                Entity::EntityGid entityOrig,
-                                Entity::EntityGid entityDest )
+                                Entity* entityOrig,
+                                Entity* entityDest )
   {
-    relOneToN[ entityOrig ].insert( RelationshipOneToNDest( entityDest,
-                                                            nullptr ));
-    relOneToOne[ entityDest ].entity = entityOrig;
+    assert( entityOrig && entityDest );
+
+    auto entityOrigGid = entityOrig->entityGid( );
+    auto entityDestGid = entityDest->entityGid( );
+    relOneToN[ entityOrigGid ].insert( RelationshipOneToNDest( entityDestGid,
+                                                               nullptr ));
+    relOneToOne[ entityDestGid ].entity = entityOrigGid;
+
+    entityOrig->setRelatedDependencies( relOneToN.name( ), entityDest );
+    entityDest->setRelatedDependencies( relOneToOne.name( ), entityOrig );
+
   }
 
   void Relationship::Establish( RelationshipOneToN& relOneToNOrig,
                                 RelationshipOneToN& relOneToNDest,
-                                Entity::EntityGid entityOrig,
-                                Entity::EntityGid entityDest )
+                                Entity* entityOrig, Entity* entityDest )
   {
-    relOneToNOrig[ entityOrig ].insert( RelationshipOneToNDest( entityDest,
-                                                                nullptr ));
-    relOneToNDest[ entityDest ].insert( RelationshipOneToNDest( entityOrig,
-                                                                nullptr ));
-  }
+    assert( entityOrig && entityDest );
+    auto entityOrigGid = entityOrig->entityGid( );
+    auto entityDestGid = entityDest->entityGid( );
+
+    relOneToNOrig[ entityOrigGid ].insert(
+      RelationshipOneToNDest( entityDestGid, nullptr ));
+    relOneToNDest[ entityDestGid ].insert(
+      RelationshipOneToNDest( entityOrigGid, nullptr ));
+
+}
 
 
 } // namespace shift

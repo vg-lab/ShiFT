@@ -31,8 +31,9 @@
 
 namespace shift
 {
+  class Entity;
 
-  class SHIFT_API Entities
+  class Entities
   {
   public:
     // Entities indexed by its gid
@@ -42,13 +43,8 @@ namespace shift
     // Entities vectorized to allow its use with fires tasks
     typedef std::vector< Entity* > VectorizedEntities;
 
-    void add( Entity* entity )
-    {
-      assert( _map.find( entity->entityGid( )) == _map.end( ));
-      _map[ entity->entityGid( ) ] = entity;
-      _vector.push_back( entity );
-      assert( _vector.size( ) == _map.size( ));
-    }
+    SHIFT_API
+    void add( Entity* entity );
 
     IndexedEntitiesValue& at( const IndexedEntitiesKey& idx )
     {
@@ -93,7 +89,9 @@ namespace shift
 
   };
 
-  class SHIFT_API EntitiesWithRelationships
+  class Relationship;
+
+  class EntitiesWithRelationships
     : public Entities
   {
   public:
@@ -113,6 +111,7 @@ namespace shift
     //! Relations are referenced by a name in a string
     TRelationshipMap _relationships;
 
+    SHIFT_API
     static shift::EntitiesWithRelationships& entities( void );
 
   private:

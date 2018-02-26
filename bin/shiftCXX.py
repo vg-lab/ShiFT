@@ -48,6 +48,10 @@ def print_header( objectType, ents, ent, file ):
             else :
                 raise Exception('objectType unknown')
     body += "  {\n"
+
+    body += "  protected:\n" \
+            "  static const std::string _entityName;\n"
+
     body += "  public:\n"
 
     # Types
@@ -71,7 +75,7 @@ def print_header( objectType, ents, ent, file ):
                     " > " + type[ "name" ] + ";\n\n"
 
     # Constructor
-    body += "    " + ent[ "name" ] + "( \n"
+    body += "    " + ent[ "name" ] + "(\n"
     i = 1
     for prop in ent[ "properties" ] :
         if prop[ "type" ] in ents :
@@ -91,13 +95,17 @@ def print_header( objectType, ents, ent, file ):
     # Destructor
     body += "    virtual ~" + ent[ "name" ] +  "( void );\n"
 
+    if objectType == "Entity" :
+        body += "    const std::string& entityName( void ) const final {"\
+                " return _entityName; }\n"
+
     # create method for entities
     if objectType == "Entity" :
         body += "    virtual shift::Entity* create( void ) const override;\n"
 
     # create subentities method for entities
     if objectType == "Entity" :
-        body += "    virtual void createSubEntities( \n" + \
+        body += "    virtual void createSubEntities(\n" + \
                 "      std::vector< shift::Entity* >& subEntities ) const override;\n"
 
     if objectType == "Relationship" :
@@ -112,8 +120,14 @@ def print_header( objectType, ents, ent, file ):
 
     # autoUpdateProperty methos
     if objectType == "Entity" :
-        body += "    virtual void autoUpdateProperty( TAutoUpdatePropertyOp /* op */,\n" + \
-                "                                     const std::string& /* propertyLabel */ ) final;\n";
+        body += "    void autoUpdateProperty( fires::Object* /* obj */,\n" + \
+                "                             const std::string& /* propertyLabel */ ) final;\n";
+
+    # set related dependency method
+    if objectType == "Entity" :
+        body += "    void setRelatedDependencies( const std::string& relName,\n" \
+                "                                 shift::Entity* dependency ) final;\n"
+
 
     # propertyFlags method
     if objectType == "Entity" :
@@ -125,7 +139,7 @@ def print_header( objectType, ents, ent, file ):
 
         # propertyFlags static map
         body += "  protected:\n" + \
-                "    static shift::Entity::TPropertiesFlagsMap _propertyFlags; \n"
+                "    static shift::Entity::TPropertiesFlagsMap _propertyFlags;\n"
 
     # end of class
     body += "  };\n"
@@ -158,6 +172,9 @@ def print_impl( objectType, ents, ent, file ):
     for namespace in namespaces :
         body += "namespace " + namespace + "\n"
         body += "{\n"
+
+    body += "  const std::string " + ent[ "name" ] + \
+            "::_entityName = \"" + ent[ "name" ] + "\";\n\n"
 
     # property flags map initialization
     if objectType == "Entity" :
@@ -231,7 +248,7 @@ def print_impl( objectType, ents, ent, file ):
 
     # create method
     if objectType == "Entity" :
-        body += "  shift::Entity* " + ent[ "name" ] + "::create( void ) const \n"
+        body += "  shift::Entity* " + ent[ "name" ] + "::create( void ) const\n"
         body += "  {\n"
         body += "    return new " + ent[ "name" ] + "( *this );\n"
         body += "  }\n"
@@ -239,9 +256,9 @@ def print_impl( objectType, ents, ent, file ):
     # create subentities method
     if objectType == "Entity" :
         body += "  void " + ent[ "name" ] + \
-                "::createSubEntities( \n" + \
-                "    std::vector< shift::Entity* >& subentities ) const \n"
-        body += "  { \n    (void) subentities; \n"
+                "::createSubEntities(\n" + \
+                "    std::vector< shift::Entity* >& subentities ) const\n"
+        body += "  {\n    (void) subentities;\n"
         nbEntitiesCreated = 0
         subEntCode = ""
         countEntitiesCode = "    unsigned int nbEntities = 0;\n"
@@ -258,7 +275,7 @@ def print_impl( objectType, ents, ent, file ):
                                    subentity[ "repeat" ][ "name" ] + " <= " + \
                                    subentity[ "repeat" ][ "end" ] + "; " + \
                                    subentity[ "repeat" ][ "name" ] + " += " + \
-                                   subentity[ "repeat" ][ "inc" ] + " ) \n    "
+                                   subentity[ "repeat" ][ "inc" ] + " )\n    "
                         closeLoop = True;
                         subEntCode += loopCode + "{\n"
                         countEntitiesCode += loopCode + "  ++nbEntities;\n"
@@ -274,7 +291,7 @@ def print_impl( objectType, ents, ent, file ):
                 if "properties" in subentity :
                     for prop in subentity[ "properties" ] :
                         if prop[ "type" ] == "linked" :
-                            subEntCode += "      entity->registerProperty( \n        \"" + \
+                            subEntCode += "      entity->registerProperty(\n        \"" + \
                                           prop[ "property" ] + "\",\n         ( " + \
                                           findPropAttrib( ents, subentity[ "name" ], \
                                                     prop[ "property" ], "type" ) + " )"
@@ -284,7 +301,7 @@ def print_impl( objectType, ents, ent, file ):
                                                     prop[ "origin" ], "type" ) + \
                                     " >( ));\n"
                         if prop[ "type" ] == "fixed" :
-                            subEntCode += "      entity->registerProperty( \n        \"" + \
+                            subEntCode += "      entity->registerProperty(\n        \"" + \
                                           prop[ "property" ] + "\",\n         " + \
                                           prop[ "value" ] + " );\n"
 
@@ -303,7 +320,7 @@ def print_impl( objectType, ents, ent, file ):
         #             str( nbEntitiesCreated ) + " );\n"
 
     if objectType == "Relationship" :
-        body += "  shift::RelationshipProperties* " + ent[ "name" ] + "::create( void ) const \n"
+        body += "  shift::RelationshipProperties* " + ent[ "name" ] + "::create( void ) const\n"
         body += "  {\n"
         body += "    return new " + ent[ "name" ] + "( *this );\n"
         body += "  }\n"
@@ -338,20 +355,73 @@ def print_impl( objectType, ents, ent, file ):
     # autoUpdateProperty method
     if objectType == "Entity" :
         body += "  void " + ent[ "name" ] + "::autoUpdateProperty(\n" + \
-                "    TAutoUpdatePropertyOp /* op */,\n" + \
-                "    const std::string& /* propertyLabel */ )\n" + \
-                "  {\n"
+                "    fires::Object* /* obj */,\n" + \
+                "    const std::string& propertyLabel )\n" + \
+                "  {\n" \
+                "    ( void ) propertyLabel;\n"
         for prop in ent[ "properties" ] :
             if "auto" in prop :
-                body += "// prop " + prop[ "name" ] + "\n"
                 auto = prop[ "auto" ]
-                if auto[ "op" ] == "SUM" and "source" in auto:
+                if ( auto[ "op" ] == "SUM" or auto[ "op" ] == "MEAN" or \
+                     auto[ "op" ] == "MAX" or auto[ "op" ] == "MIN" or \
+                     auto[ "op" ] == "COUNT" ) and \
+                     "source" in auto and "entities" in auto[ "source" ]:
+                    body +=  "    if ( propertyLabel == \"" + prop[ "name" ] + "\" )\n"
                     body += \
-                    "    auto& " + auto[ "source" ][ "relName" ] + " = *( shift::EntitiesWithRelationships::entities( )." \
-                    "relationships( )[ \"" + auto[ "source" ][ "relName" ] + "\" ]->asOneToN( ));\n" \
-                    "    const auto& relEntities = " + auto[ "source" ][ "relName" ] + "[ this->entityGid( ) ];"
+                    "      this->autoUpdatePropertyWithRelatedEntities(" + \
+                    "\n        \"" + auto[ "source" ][ "relName" ] + "\"" \
+                    ",\n        { ";
+                    body += ', '.join( '"' + str( el ) + '"' for el in auto[ "source" ][ "entities" ] )
+                    # for ent in auto[ "entities" ] :
+                    #     body += ent + ","
+                    if auto[ "op" ] == "SUM" : op = "TAutoUpdatePropertyOp::SUM"
+                    elif auto[ "op" ] == "MEAN" : op = "TAutoUpdatePropertyOp::MEAN"
+                    elif auto[ "op" ] == "MAX" : op = "TAutoUpdatePropertyOp::MAX"
+                    elif auto[ "op" ] == "MIN" : op = "TAutoUpdatePropertyOp::MIN"
+                    elif auto[ "op" ] == "COUNT" : op = "TAutoUpdatePropertyOp::COUNT"
+                    if "property" in auto[ "source" ] :
+                        origPropName = auto[ "source" ][ "property" ]
+                    else :
+                        origPropName = ""
+                    body += " }" +\
+                    ",\n        " + op +", \"" + \
+                    origPropName  + "\", \"" + \
+                    prop[ "name" ] + "\" );\n"
 
         body += "  }\n"
+
+    # set related dependencies method
+    if objectType == "Entity" :
+        body += "  void " + ent[ "name" ] + "::setRelatedDependencies(\n" \
+                "    const std::string& relName,\n" \
+                "    shift::Entity* dependency )\n" \
+                "  {\n    ( void ) relName; ( void ) dependency;\n"
+        for prop in ent[ "properties" ] :
+            if "auto" in prop and \
+               "source" in prop[ "auto" ] and \
+               "entities" in prop[ "auto" ][ "source" ] and \
+               "property" in prop[ "auto" ][ "source" ] :
+                auto = prop[ "auto" ]
+                relEntComp = [ "dependency->entityName( ) == \"" + s + "\""  for s in auto[ "source" ][ "entities" ]]
+                body += "    if ( relName == \"" + auto[ "source" ][ "relName" ] +"\" &&\n" + \
+                        "        ( "
+                body += ' ||\n          '.join( str( relEnt ) for relEnt in relEntComp )
+                body += " ))\n" + \
+                        "    {\n"
+                body += "      fires::DependenciesManager::addDependency(\n" + \
+                        "        this, \"" + \
+                        prop[ "name" ] + "\", dependency, \"" + \
+                        auto[ "source" ][ "property" ] + "\" );\n" + \
+                        "      fires::DependenciesManager::setUpdater(\n" + \
+                        "        this, \"" + prop[ "name" ] + "\", " \
+                        " this, &" + ent[ "name" ] + "::autoUpdateProperty );\n" \
+                        "      fires::DependenciesManager::setDependentsDirty(\n" \
+                        "        this, \"" + prop[ "name" ] + "\", true );\n"
+
+
+                body += "    }\n"
+
+        body += "    }\n"
 
     for namespace in namespaces :
         body += "}\n"
