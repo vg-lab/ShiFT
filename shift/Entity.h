@@ -23,6 +23,8 @@
 #define __SHIFT__ENTITY__
 
 #include "definitions.h"
+#include "Properties.h"
+#include "Entities.h"
 #include <shift/api.h>
 #include <fires/fires.h>
 
@@ -33,28 +35,10 @@
 namespace shift
 {
 
-  class Properties : public fires::Object
-  {
-  public:
-    typedef enum
-    {
-      SUBPROPERTY
-    } PropertyConstraintType;
-
-    virtual bool evalConstraint(
-      const PropertyConstraintType& /* constraintType */,
-      const std::string& /* propertyName */ ) const
-    {
-      return true;
-    }
-
-  };
-
   class Entity
     : public Properties
   {
   public:
-    typedef unsigned int EntityGid;
 
     SHIFT_API
     Entity( void );
@@ -64,6 +48,8 @@ namespace shift
 
     SHIFT_API
     EntityGid entityGid( void ) const;
+
+    virtual const std::string& entityName( void ) const = 0;
 
     SHIFT_API
     virtual Entity* create( void ) const = 0;
@@ -91,7 +77,22 @@ namespace shift
                                   TPropertyFlag /* flag */ ) const
     {
       return false;
+
     }
+    typedef enum { SUM, MEAN, MIN, MAX, COUNT } TAutoUpdatePropertyOp;
+
+    virtual void autoUpdateProperty( fires::Object* /* obj */,
+                                     const std::string& /* propertyLabel */ ) {};
+
+    SHIFT_API void autoUpdatePropertyWithRelatedEntities(
+      const std::string& relName,
+      const std::vector< std::string >& relatedEntitiesNames,
+      TAutoUpdatePropertyOp op,
+      const std::string& origPropertyLabel,
+      const std::string& destPropertyLabel );
+
+    virtual void setRelatedDependencies( const std::string& /* relName */,
+                                         shift::Entity* /* dependency */ ) {}
 
   protected:
     EntityGid _entityGid;
