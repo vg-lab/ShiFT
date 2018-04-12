@@ -14,4 +14,4 @@ ShiFT is used by NeuroScheme (https://github.com/gmrvvis/NeuroScheme)
 ## Dependencies
 
 * FiReS
-* Boost Any (needed by FiReS)
+* Boost.Any, Boost.Lexical_Cast and Boost.Spirit (needed by FiReS)
