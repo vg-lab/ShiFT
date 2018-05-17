@@ -25,6 +25,7 @@ function( shift_generate_cxx
     set( __OUTPUT_FILES__ ${__OUTPUT_FILES__}
       ${__OUT_DIR__}/shift_${__OBJ__}.cpp
       ${__OUT_DIR__}/shift_${__OBJ__}.h )
+    set_property(SOURCE ${__OUT_DIR__}/shift_${__OBJ__}.cpp PROPERTY SKIP_AUTOGEN ON)
   endforeach( )
 
   add_custom_command(
