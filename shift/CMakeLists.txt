@@ -22,6 +22,7 @@ set( SHIFT_SOURCES
   Entity.cpp
   Relationship.cpp
   Representation.cpp
+  RelationshipPropertiesTypes.cpp
   ViewGraph.cpp
   )
 

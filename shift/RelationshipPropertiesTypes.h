@@ -2,6 +2,7 @@
  * Copyright (c) 2014-2016 GMRV/URJC/UPM.
  *
  * Authors: Juan Jose Garcia Cantero <juanjose.garcia@urjc.es>
+ *          Iago Calvo Lista <i.calvol@alumnos.urjc.es>
  *
  * This file is part of ShiFT
  *
@@ -34,27 +35,40 @@ namespace shift
   {
   public:
 
+    typedef std::multimap< std::string, std::string > TRelationshipConstraints;
+    typedef std::pair< TRelationshipConstraints::const_iterator,
+      TRelationshipConstraints::const_iterator > TRelConstraintsRange;
+    typedef TRelConstraintsRange rel_constr_range;
+
+    typedef std::map< std::string, TRelationshipConstraints* > TConstraintsContainer;
+    typedef std::pair< TConstraintsContainer::const_iterator,
+      TConstraintsContainer::const_iterator > TConstraintsRange;
+    typedef TConstraintsRange constraints_range;
+
     typedef std::unordered_map< std::string, RelationshipProperties* >
       TRelationshipPropertiesTypes;
 
     virtual ~RelationshipPropertiesTypes( void ){ }
 
-    const TRelationshipPropertiesTypes& relationshipPropertiesTypes( void )
-      const { return _relationshipPropertiesTypes; }
+    SHIFT_API static constraints_range constraints( void );
+    SHIFT_API static rel_constr_range constraints(
+      const std::string& relationshipName );
+    SHIFT_API static rel_constr_range constraints(
+      const std::string& relationshipName, const std::string& entityName );
+
+    SHIFT_API static bool isConstrained( const std::string& relationshipName,
+      const std::string& srcEntity, const std::string& dstEntity );
+
+    SHIFT_API const TRelationshipPropertiesTypes&
+      relationshipPropertiesTypes( void );
 
     RelationshipProperties* getRelationshipProperties(
-      const std::string relationshipName_ )
-    {
-      auto relPropIt = _relationshipPropertiesTypes.find( relationshipName_ );
-      if ( relPropIt != _relationshipPropertiesTypes.end( ))
-        return relPropIt->second;
-      else
-        return nullptr;
-    }
+      const std::string relationshipName_ );
 
   protected:
     TRelationshipPropertiesTypes _relationshipPropertiesTypes;
-
+    static TConstraintsContainer* _constraints;
+    static void addConstraint(std::string constraintTypeName, std::string srcEntityTypeName,std::string dstEntityTypeName );
   };
 
 }

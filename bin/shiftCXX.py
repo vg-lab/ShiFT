@@ -531,15 +531,7 @@ def main( argv ) :
                              "{\n" + \
                              "public:\n\n"
 
-            domainContent += "  typedef std::multimap< std::string, std::string > TRelationshipConstraints;\n"
-            domainContent += "  typedef std::pair< TRelationshipConstraints::const_iterator,\n" + \
-                             "                     TRelationshipConstraints::const_iterator > TRelConstraintsRange;\n" + \
-                             "  typedef TRelConstraintsRange rel_constr_range;\n\n"
-
-            domainContent += "  typedef std::map< std::string, TRelationshipConstraints > TConstraintsContainer;"
-            domainContent += "  typedef std::pair< TConstraintsContainer::const_iterator,\n" + \
-                             "                     TConstraintsContainer::const_iterator > TConstraintsRange;\n" + \
-                             "  typedef TConstraintsRange constraints_range;\n\n"
+            domainContent += "  static int init( );\n\n"
 
             domainContent += "  RelationshipPropertiesTypes( void )\n" \
                              "  {\n"
@@ -553,72 +545,22 @@ def main( argv ) :
 
             domainContent += "  virtual ~RelationshipPropertiesTypes( void )\n" \
                              "  {}\n\n"
-
-            domainContent += "  virtual constraints_range constraints( void );\n"
-            domainContent += "  virtual rel_constr_range constraints( const std::string& constraintName );\n"
-
-            domainContent += "  virtual rel_constr_range constraints( const std::string& constraintName,\n" + \
-                             "                                         const std::string& entityName );\n"
-
-            domainContent += "  virtual bool isConstrained( const std::string& relationshipName,\n" + \
-                             "                              const std::string& srcEntity, const std::string& dstEntity );\n"
-
-            domainContent += "protected:\n\n"
-
-            domainContent += "  static TConstraintsContainer _constraints;\n"
-
+            domainContent += "protected:\n"+\
+                             "static const int i;\n"
             domainContent += "};\n"
 
             # RelationshipPropertiesTypes.cpp
             scope = "RelationshipPropertiesTypes::"
 
             # Container initialization
-            implContent += "  " + scope + "TConstraintsContainer init( )\n"
-            implContent += "  {\n"
-            implContent += "    " + scope + "TConstraintsContainer result;\n\n"
+            implContent += "const int RelationshipPropertiesTypes::i = RelationshipPropertiesTypes::init();\n\n"
+
+            implContent += "int RelationshipPropertiesTypes::init( )\n"+\
+                           "  {\n"
             for relationship, constraint in constraints.items( ):
-                contName = str(relationship).lower( ) + "Container"
-                implContent += "    " + scope + "TRelationshipConstraints " + contName + ";\n"
-                print( constraint )
                 for srcEntity, dstEntity in constraint:
-                    implContent += '    ' + contName + '.insert( std::make_pair( "' + srcEntity + '", "' + dstEntity + '" ));\n'
-                implContent += "    result[ \"" + relationship + "\"] = " + contName + ";\n\n"
-            implContent += "    return result;\n"
-            implContent += "  }\n"
-
-            implContent += "  " + scope + "TConstraintsContainer " + scope + "_constraints( init( ));\n\n"
-
-            implContent += "  " + scope + "constraints_range " + scope + "constraints( void )\n"
-            implContent += "  {\n" + \
-                           "    return std::make_pair( _constraints.begin( ), _constraints.end( ));\n" + \
-                           "  }\n"
-
-            implContent += "  " + scope + "rel_constr_range " + scope + "constraints( const std::string& relationshipName )\n" + \
-                           "  {\n"
-            implContent += "    auto relIt = _constraints.find( relationshipName );\n"
-            implContent += "    assert( relIt != _constraints.end( ));\n"
-            implContent += "    return std::make_pair( relIt->second.begin( ),\n" + \
-                           "                           relIt->second.end( ));\n"
-            implContent += "  }\n"
-
-            implContent += "  " + scope + "rel_constr_range " + scope + "constraints( const std::string& relationshipName,\n" + \
-                           "                                                  const std::string& entityName )\n" + \
-                           "  {\n"
-            implContent += "    auto relIt = _constraints.find( relationshipName );\n"
-            implContent += "    assert( relIt != _constraints.end( ));\n"
-            implContent += "    return relIt->second.equal_range( entityName );\n"
-            implContent += "  }\n\n"
-
-            implContent += "  bool " + scope + "isConstrained( const std::string& relationshipName,\n" + \
-                           "                                        const std::string& srcEntity, const std::string& dstEntity )\n" + \
-                           "  {\n"
-            implContent += "    auto relIt = _constraints.find( relationshipName );\n"
-            implContent += "    assert( relIt != _constraints.end( ));\n"
-            implContent += "    auto results = relIt->second.equal_range( srcEntity );\n"
-            implContent += "    for( auto dstIt = results.first; dstIt != results.second; ++dstIt )\n" + \
-                           "      if( dstIt->second == dstEntity )\n" + \
-                           "        return true;\n" + \
-                           "    return false;\n"
+                    implContent += '    addConstraint("' + relationship + '", "' + srcEntity + '", "' + dstEntity + '" );\n'
+            implContent += "    return 1;\n"
             implContent += "  }\n"
 
         namespaces = data[ "namespace" ].split( "::" )
