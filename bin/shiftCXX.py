@@ -130,7 +130,11 @@ def print_header( objectType, ents, ent, file ):
             "      const shift::Properties::PropertyConstraintType& constraintType,\n" + \
             "      const std::string& propertyName ) const final;\n"
 
-    # autoUpdateProperty methos
+    # autoUpdateProperties method
+    if objectType == "Entity" :
+        body += "    void autoUpdateProperties( void ) final;\n";
+
+    # autoUpdateProperty method
     if objectType == "Entity" :
         body += "    void autoUpdateProperty( fires::Object* /* obj */,\n" + \
                 "                             const std::string& /* propertyLabel */ ) final;\n";
@@ -370,6 +374,20 @@ def print_impl( objectType, ents, ent, file ):
     body += "    }\n"
     body += "    return true;\n"
     body += "  }\n"
+
+    # autoUpdateProperties method
+    if objectType == "Entity" :
+        body += "  void " + ent[ "name" ] + "::autoUpdateProperties( )\n" + \
+                "  {\n"
+        for prop in ent[ "properties" ] :
+            if "auto" in prop :
+                auto = prop[ "auto" ]
+                if ( auto[ "op" ] == "SUM" or auto[ "op" ] == "MEAN" or \
+                     auto[ "op" ] == "MAX" or auto[ "op" ] == "MIN" or \
+                     auto[ "op" ] == "COUNT" ) and \
+                        "source" in auto and "entities" in auto[ "source" ]:
+                    body +=  "    this->autoUpdateProperty(nullptr, \"" + prop[ "name" ]+"\" );\n"
+        body += "  }\n"
 
 
     # autoUpdateProperty method
