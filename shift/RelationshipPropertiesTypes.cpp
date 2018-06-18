@@ -26,7 +26,8 @@
 namespace shift
 {
 
-  RelationshipPropertiesTypes::TConstraintsContainer* RelationshipPropertiesTypes::_constraints = new TConstraintsContainer( );
+  RelationshipPropertiesTypes::TConstraintsContainer*
+    RelationshipPropertiesTypes::_constraints = new TConstraintsContainer( );
 
   RelationshipPropertiesTypes::constraints_range
   RelationshipPropertiesTypes::constraints( void )
@@ -45,8 +46,8 @@ namespace shift
   }
 
   RelationshipPropertiesTypes::rel_constr_range
-    RelationshipPropertiesTypes::constraints( const std::string& relationshipName,
-    const std::string& entityName )
+    RelationshipPropertiesTypes::constraints(
+    const std::string& relationshipName, const std::string& entityName )
   {
     auto relIt = _constraints->find( relationshipName );
     assert( relIt != _constraints->end( ));
@@ -74,7 +75,7 @@ namespace shift
 
   RelationshipProperties*
     RelationshipPropertiesTypes::getRelationshipProperties(
-    const std::string relationshipName_ )
+    const std::string& relationshipName_ )
   {
     auto relPropIt = _relationshipPropertiesTypes.find( relationshipName_ );
     if( relPropIt != _relationshipPropertiesTypes.end( ))
@@ -84,8 +85,8 @@ namespace shift
   }
 
   void RelationshipPropertiesTypes::addConstraint(
-    std::string constraintTypeName, std::string srcEntityTypeName,
-    std::string dstEntityTypeName )
+    const std::string& constraintTypeName, const std::string& srcEntityTypeName,
+    const std::string& dstEntityTypeName )
   {
     auto it = _constraints->find( constraintTypeName );
     RelationshipPropertiesTypes::TRelationshipConstraints* container;
@@ -95,13 +96,9 @@ namespace shift
       _constraints ->insert( std::pair< std::string,
         RelationshipPropertiesTypes::TRelationshipConstraints* > (
         constraintTypeName, container ));
-      unsigned long a = _constraints->size( );
-      std::cout << a;
     }else{
       container =  it->second;
     }
     container->insert(std::make_pair( srcEntityTypeName, dstEntityTypeName ));
   }
 }
-
-

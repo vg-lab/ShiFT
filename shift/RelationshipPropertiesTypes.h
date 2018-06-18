@@ -63,12 +63,14 @@ namespace shift
       relationshipPropertiesTypes( void );
 
     RelationshipProperties* getRelationshipProperties(
-      const std::string relationshipName_ );
+      const std::string& relationshipName_ );
 
   protected:
     TRelationshipPropertiesTypes _relationshipPropertiesTypes;
     static TConstraintsContainer* _constraints;
-    static void addConstraint(std::string constraintTypeName, std::string srcEntityTypeName,std::string dstEntityTypeName );
+    static void addConstraint( const std::string& constraintTypeName,
+      const std::string& srcEntityTypeName,
+      const std::string& dstEntityTypeName );
   };
 
 }

@@ -49,14 +49,6 @@ namespace shift
 	  }
 	  SHIFT_THROW("Entity type not recognised");
   }
-      std::string entityTypeName( shift::Entity* entity ) {
-          for(auto entityTuple : _entitiesTypes){
-              if ( entity->isSameEntityType( std::get<EntitiesTypes::OBJECT>( entityTuple ))){
-                  return std::get<EntitiesTypes::ENTITY_NAME>( entityTuple );
-              }
-          }
-          SHIFT_THROW("Entity type name not recognised");
-      }
 
   protected:
     TEntitiesTypes _entitiesTypes;

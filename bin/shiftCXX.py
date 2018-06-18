@@ -102,27 +102,28 @@ def print_header( objectType, ents, ent, file ):
     else:
         body += " );\n"
 
-    # Copy constructor
+    # Copy constructor declaration
     body += "    " + ent[ "name" ] + "( const " + ent[ "name" ] + "& );\n"
-    # Destructor
+    # Destructor declaration
     body += "    virtual ~" + ent[ "name" ] +  "( void );\n"
 
+    # Entity Name method declaration and definition
     if objectType == "Entity" :
         body += "    const std::string& entityName( void ) const final {"\
                 " return _entityName; }\n"
 
-    # create method for entities
+    # create method for entities declaration
     if objectType == "Entity" :
         body += "    virtual shift::Entity* create( void ) const override;\n"
 
-    # create subentities method for entities
+    # create subentities method for entities declaration
     if objectType == "Entity" :
         body += "    virtual void createSubEntities(\n" + \
                 "      std::vector< shift::Entity* >& subEntities ) const override;\n"
 
     if objectType == "Relationship" :
         body += "    virtual shift::RelationshipProperties* create( void ) const override;\n"
-    # subentity method
+    # issubentity method declaration and definition
     if objectType == "Entity" and "subentity" in ent[ "flags" ] :
         body += "    inline virtual bool isSubEntity( void ) final { return true; }\n"
 
@@ -130,22 +131,22 @@ def print_header( objectType, ents, ent, file ):
             "      const shift::Properties::PropertyConstraintType& constraintType,\n" + \
             "      const std::string& propertyName ) const final;\n"
 
-    # autoUpdateProperties method
+    # autoUpdateProperties method declaration
     if objectType == "Entity" :
         body += "    void autoUpdateProperties( void ) final;\n";
 
-    # autoUpdateProperty method
+    # autoUpdateProperty method declaration
     if objectType == "Entity" :
         body += "    void autoUpdateProperty( fires::Object* /* obj */,\n" + \
                 "                             const std::string& /* propertyLabel */ ) final;\n";
 
-    # set related dependency method
+    # set related dependencies method declaration
     if objectType == "Entity" :
         body += "    void setRelatedDependencies( const std::string& relName,\n" \
                 "                                 shift::Entity* dependency ) final;\n"
 
 
-    # propertyFlags method
+    # propertyFlags method declaration and definition
     if objectType == "Entity" :
         body += "    inline virtual bool hasPropertyFlag( const std::string& propertyLabel,\n" + \
                 "                                         shift::Entity::TPropertyFlag flag ) const final\n" +\
@@ -212,7 +213,7 @@ def print_impl( objectType, ents, ent, file ):
             body += "\n"
         body += "  };\n\n"
 
-    # Constructor
+    # Constructor definition
     body += "  " + ent[ "name" ] + "::" + ent[ "name" ] + "(\n"
     i = 1;
     if "properties" in ent and len( ent["properties" ]) > 0:
@@ -256,7 +257,7 @@ def print_impl( objectType, ents, ent, file ):
                 + prop[ "name" ].replace(" ", "") + "__" + enumValues + " );\n"
     body += "  }\n"
 
-    # Copy constructor
+    # Copy constructor definition
     body += "  " + ent[ "name" ] + "::" + ent[ "name" ] + \
             "( const " + ent[ "name" ] + "& "+ \
             ( "other" if len( ent["properties" ]) > 0 else "/*other*/" ) + \
@@ -270,14 +271,14 @@ def print_impl( objectType, ents, ent, file ):
     body += "  }\n"
     body += "  " + ent[ "name" ] + "::~" + ent[ "name" ] +  "( void ) {}\n"
 
-    # create method
+    # create method definition
     if objectType == "Entity" :
         body += "  shift::Entity* " + ent[ "name" ] + "::create( void ) const\n"
         body += "  {\n"
         body += "    return new " + ent[ "name" ] + "( *this );\n"
         body += "  }\n"
 
-    # create subentities method
+    # create subentities method definition
     if objectType == "Entity" :
         body += "  void " + ent[ "name" ] + \
                 "::createSubEntities(\n" + \
@@ -375,7 +376,7 @@ def print_impl( objectType, ents, ent, file ):
     body += "    return true;\n"
     body += "  }\n"
 
-    # autoUpdateProperties method
+    # autoUpdateProperties method definition
     if objectType == "Entity" :
         body += "  void " + ent[ "name" ] + "::autoUpdateProperties( )\n" + \
                 "  {\n"
@@ -390,7 +391,7 @@ def print_impl( objectType, ents, ent, file ):
         body += "  }\n"
 
 
-    # autoUpdateProperty method
+    # autoUpdateProperty method definition
     if objectType == "Entity" :
         body += "  void " + ent[ "name" ] + "::autoUpdateProperty(\n" + \
                 "    fires::Object* /* obj */,\n" + \
@@ -428,7 +429,7 @@ def print_impl( objectType, ents, ent, file ):
 
         body += "  }\n"
 
-    # set related dependencies method
+    # set related dependencies method definition
     if objectType == "Entity" :
         body += "  void " + ent[ "name" ] + "::setRelatedDependencies(\n" \
                 "    const std::string& relName,\n" \
@@ -549,7 +550,7 @@ def main( argv ) :
                              "{\n" + \
                              "public:\n\n"
 
-            domainContent += "  static int init( );\n\n"
+            domainContent += "  static bool init( );\n\n"
 
             domainContent += "  RelationshipPropertiesTypes( void )\n" \
                              "  {\n"
@@ -564,21 +565,21 @@ def main( argv ) :
             domainContent += "  virtual ~RelationshipPropertiesTypes( void )\n" \
                              "  {}\n\n"
             domainContent += "protected:\n"+\
-                             "static const int i;\n"
+                             "  static const bool initialized;\n"
             domainContent += "};\n"
 
             # RelationshipPropertiesTypes.cpp
             scope = "RelationshipPropertiesTypes::"
 
             # Container initialization
-            implContent += "const int RelationshipPropertiesTypes::i = RelationshipPropertiesTypes::init();\n\n"
+            implContent += "const bool RelationshipPropertiesTypes::initialized = RelationshipPropertiesTypes::init();\n\n"
 
-            implContent += "int RelationshipPropertiesTypes::init( )\n"+\
+            implContent += "bool RelationshipPropertiesTypes::init( )\n"+\
                            "  {\n"
             for relationship, constraint in constraints.items( ):
                 for srcEntity, dstEntity in constraint:
                     implContent += '    addConstraint("' + relationship + '", "' + srcEntity + '", "' + dstEntity + '" );\n'
-            implContent += "    return 1;\n"
+            implContent += "    return true;\n"
             implContent += "  }\n"
 
         namespaces = data[ "namespace" ].split( "::" )
