@@ -47,6 +47,9 @@ namespace shift
     virtual ~Entity( void );
 
     SHIFT_API
+    virtual void autoUpdateProperties( void ){ };
+
+    SHIFT_API
     EntityGid entityGid( void ) const;
 
     virtual const std::string& entityName( void ) const = 0;

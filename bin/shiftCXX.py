@@ -74,43 +74,56 @@ def print_header( objectType, ents, ent, file ):
             body += "    typedef std::vector< " + type[ "element" ] + \
                     " > " + type[ "name" ] + ";\n\n"
 
+        if type[ "class" ].endswith( "map" ) :
+            typename = str( type[ "class" ])
+            includes += "#include <" + typename.replace( "multi", "") + ">\n"
+            body += "    typedef std::" + typename + "< " + type[ "key" ] + \
+                    ", " + type[ "element" ] + " > " + type[ "name" ] + ";\n\n"
+            body += "    typedef std::pair< " + type[ "name"] + "::const_iterator, \n" + \
+                    "                       " + type[ "name"] + "::const_iterator>" + \
+                    "T" + ent[ "name"] + "Range;\n\n"
+
     # Constructor
     body += "    " + ent[ "name" ] + "(\n"
     i = 1
-    for prop in ent[ "properties" ] :
-        if prop[ "type" ] in ents :
-            includes += "#include <shift_" + prop[ "type" ] + ".h>\n"
+    if "properties" in ent and len( ent[ "properties"]) > 0:
+        for prop in ent[ "properties" ] :
+            if prop[ "type" ] in ents :
+                includes += "#include <shift_" + prop[ "type" ] + ".h>\n"
+    
+            body += "      " + prop[ "type" ] + " " + \
+                    prop[ "name" ].replace(" ", "") + " = " + \
+                    prop[ "type" ] + "( )"
+            if i == len( ent[ "properties" ] ) :
+                body += "\n    );\n"
+            else :
+                body += ",\n"
+                i = i + 1
+    else:
+        body += " );\n"
 
-        body += "      " + prop[ "type" ] + " " + \
-                prop[ "name" ].replace(" ", "") + " = " + \
-                prop[ "type" ] + "( )"
-        if i == len( ent[ "properties" ] ) :
-            body += "\n    );\n"
-        else :
-            body += ",\n"
-            i = i + 1
-
-    # Copy constructor
+    # Copy constructor declaration
     body += "    " + ent[ "name" ] + "( const " + ent[ "name" ] + "& );\n"
-    # Destructor
+    # Destructor declaration
     body += "    virtual ~" + ent[ "name" ] +  "( void );\n"
 
+    # Entity Name method declaration and definition
     if objectType == "Entity" :
         body += "    const std::string& entityName( void ) const final {"\
                 " return _entityName; }\n"
 
-    # create method for entities
+    # create method for entities declaration
     if objectType == "Entity" :
         body += "    virtual shift::Entity* create( void ) const override;\n"
 
-    # create subentities method for entities
+    # create subentities method for entities declaration
     if objectType == "Entity" :
         body += "    virtual void createSubEntities(\n" + \
                 "      std::vector< shift::Entity* >& subEntities ) const override;\n"
 
     if objectType == "Relationship" :
         body += "    virtual shift::RelationshipProperties* create( void ) const override;\n"
-    # subentity method
+    # issubentity method declaration and definition
     if objectType == "Entity" and "subentity" in ent[ "flags" ] :
         body += "    inline virtual bool isSubEntity( void ) final { return true; }\n"
 
@@ -118,18 +131,22 @@ def print_header( objectType, ents, ent, file ):
             "      const shift::Properties::PropertyConstraintType& constraintType,\n" + \
             "      const std::string& propertyName ) const final;\n"
 
-    # autoUpdateProperty methos
+    # autoUpdateProperties method declaration
+    if objectType == "Entity" :
+        body += "    void autoUpdateProperties( void ) final;\n";
+
+    # autoUpdateProperty method declaration
     if objectType == "Entity" :
         body += "    void autoUpdateProperty( fires::Object* /* obj */,\n" + \
                 "                             const std::string& /* propertyLabel */ ) final;\n";
 
-    # set related dependency method
+    # set related dependencies method declaration
     if objectType == "Entity" :
         body += "    void setRelatedDependencies( const std::string& relName,\n" \
                 "                                 shift::Entity* dependency ) final;\n"
 
 
-    # propertyFlags method
+    # propertyFlags method declaration and definition
     if objectType == "Entity" :
         body += "    inline virtual bool hasPropertyFlag( const std::string& propertyLabel,\n" + \
                 "                                         shift::Entity::TPropertyFlag flag ) const final\n" +\
@@ -196,17 +213,21 @@ def print_impl( objectType, ents, ent, file ):
             body += "\n"
         body += "  };\n\n"
 
-    # Constructor
+    # Constructor definition
     body += "  " + ent[ "name" ] + "::" + ent[ "name" ] + "(\n"
     i = 1;
-    for prop in ent[ "properties" ] :
-        body += "      " + prop[ "type" ] + " " + \
-                prop[ "name" ].replace(" ", "") + "__"
-        if i == len( ent[ "properties" ] ) :
-            body += " )\n"
-        else :
-            body += ",\n"
-            i = i + 1
+    if "properties" in ent and len( ent["properties" ]) > 0:
+        for prop in ent[ "properties" ] :
+            body += "      " + prop[ "type" ] + " " + \
+                    prop[ "name" ].replace(" ", "") + "__"
+            if i == len( ent[ "properties" ] ) :
+                body += " )\n"
+            else :
+                body += ",\n"
+                i = i + 1
+    else:
+        body += " void )\n"
+
     body += "  {\n"
 
     types = ent[ "types" ]
@@ -235,9 +256,13 @@ def print_impl( objectType, ents, ent, file ):
                 prop[ "name" ] + "\", " \
                 + prop[ "name" ].replace(" ", "") + "__" + enumValues + " );\n"
     body += "  }\n"
-    # Copy constructor
+
+    # Copy constructor definition
     body += "  " + ent[ "name" ] + "::" + ent[ "name" ] + \
-            "( const " + ent[ "name" ] + "& other )\n  {"
+            "( const " + ent[ "name" ] + "& "+ \
+            ( "other" if len( ent["properties" ]) > 0 else "/*other*/" ) + \
+            ")\n  {"
+
     body += "\n"
     for prop in ent[ "properties" ] :
         body += "    this->registerProperty(\n      \"" + prop[ "name" ] \
@@ -246,14 +271,14 @@ def print_impl( objectType, ents, ent, file ):
     body += "  }\n"
     body += "  " + ent[ "name" ] + "::~" + ent[ "name" ] +  "( void ) {}\n"
 
-    # create method
+    # create method definition
     if objectType == "Entity" :
         body += "  shift::Entity* " + ent[ "name" ] + "::create( void ) const\n"
         body += "  {\n"
         body += "    return new " + ent[ "name" ] + "( *this );\n"
         body += "  }\n"
 
-    # create subentities method
+    # create subentities method definition
     if objectType == "Entity" :
         body += "  void " + ent[ "name" ] + \
                 "::createSubEntities(\n" + \
@@ -351,8 +376,22 @@ def print_impl( objectType, ents, ent, file ):
     body += "    return true;\n"
     body += "  }\n"
 
+    # autoUpdateProperties method definition
+    if objectType == "Entity" :
+        body += "  void " + ent[ "name" ] + "::autoUpdateProperties( )\n" + \
+                "  {\n"
+        for prop in ent[ "properties" ] :
+            if "auto" in prop :
+                auto = prop[ "auto" ]
+                if ( auto[ "op" ] == "SUM" or auto[ "op" ] == "MEAN" or \
+                     auto[ "op" ] == "MAX" or auto[ "op" ] == "MIN" or \
+                     auto[ "op" ] == "COUNT" ) and \
+                        "source" in auto and "entities" in auto[ "source" ]:
+                    body +=  "    this->autoUpdateProperty(nullptr, \"" + prop[ "name" ]+"\" );\n"
+        body += "  }\n"
 
-    # autoUpdateProperty method
+
+    # autoUpdateProperty method definition
     if objectType == "Entity" :
         body += "  void " + ent[ "name" ] + "::autoUpdateProperty(\n" + \
                 "    fires::Object* /* obj */,\n" + \
@@ -390,7 +429,7 @@ def print_impl( objectType, ents, ent, file ):
 
         body += "  }\n"
 
-    # set related dependencies method
+    # set related dependencies method definition
     if objectType == "Entity" :
         body += "  void " + ent[ "name" ] + "::setRelatedDependencies(\n" \
                 "    const std::string& relName,\n" \
@@ -447,11 +486,16 @@ def main( argv ) :
 
         data = json.load( data_file )
 
+        implFile = str( domainFile ).replace( ".h", ".cpp" )
+
         domainContent = "// File generated by shiftCXX.py. Do not edit.\n"
+
+        implContent = domainContent
+        implContent += "#include <" + domainFile[ str( domainFile ).rfind("/") + 1 : ] + ">\n\n"
 
         for ent in data["entities"] :
             if ent[ "name" ] in entName :
-                domainContent += "#include <shift_" + ent[ "name" ] + ".h>\n"
+                domainContent += "#include <" + outputdir + "/shift_" + ent[ "name" ] + ".h>\n"
 
         header_define = "__" + data[ "namespace" ].upper( ).replace("::", "__") + \
                         "__" + data[ "name" ].upper( ) + "__"
@@ -466,8 +510,10 @@ def main( argv ) :
         # Namespaces
         namespaces = data[ "namespace" ].split( "::" )
         for namespace in namespaces :
-            domainContent += "namespace " + namespace + "\n"
-            domainContent += "{\n"
+            content = "namespace " + namespace + "\n{\n"
+            domainContent += content
+            if objectType == "Relationship":
+                implContent += content
 
         if objectType == "Entity" :
             domainContent += "class EntitiesTypes : public shift::EntitiesTypes\n" \
@@ -489,10 +535,24 @@ def main( argv ) :
             domainContent += "};\n"
 
         if objectType == "Relationship" :
+
+            # Constraints
+            constraints = dict( )
+            for ent in data[ "entities" ]:
+                if "constraints" in ent:
+                    cvalue = [ ]
+                    for constraint in ent[ "constraints" ]:
+                        cvalue.append( [ constraint[ "srcEntity" ], constraint[ "dstEntity" ]] )
+                    constraints[ ent["name"]] = cvalue
+
+
             domainContent += "class RelationshipPropertiesTypes : public shift::RelationshipPropertiesTypes\n" + \
-                             "{\n" \
-                             "public:\n" \
-                             "  RelationshipPropertiesTypes( void )\n" \
+                             "{\n" + \
+                             "public:\n\n"
+
+            domainContent += "  static bool init( );\n\n"
+
+            domainContent += "  RelationshipPropertiesTypes( void )\n" \
                              "  {\n"
             for ent in data["entities"] :
                 if ent["name"] in entName and "relationship" in ent:
@@ -503,13 +563,30 @@ def main( argv ) :
             domainContent += "  }\n" \
 
             domainContent += "  virtual ~RelationshipPropertiesTypes( void )\n" \
-                             "  {}\n"
-
+                             "  {}\n\n"
+            domainContent += "protected:\n"+\
+                             "  static const bool initialized;\n"
             domainContent += "};\n"
+
+            # RelationshipPropertiesTypes.cpp
+            scope = "RelationshipPropertiesTypes::"
+
+            # Container initialization
+            implContent += "const bool RelationshipPropertiesTypes::initialized = RelationshipPropertiesTypes::init();\n\n"
+
+            implContent += "bool RelationshipPropertiesTypes::init( )\n"+\
+                           "  {\n"
+            for relationship, constraint in constraints.items( ):
+                for srcEntity, dstEntity in constraint:
+                    implContent += '    addConstraint("' + relationship + '", "' + srcEntity + '", "' + dstEntity + '" );\n'
+            implContent += "    return true;\n"
+            implContent += "  }\n"
 
         namespaces = data[ "namespace" ].split( "::" )
         for namespace in namespaces :
             domainContent += "}\n"
+            if objectType == "Relationship":
+                implContent += "}\n"
 
         domainContent += "#endif\n"
 
@@ -517,6 +594,11 @@ def main( argv ) :
         f = open( domainFile, 'w')
         f.write( domainContent )
         f.close( )
+
+        if objectType == "Relationship":
+            f = open( implFile, 'w' )
+            f.write( implContent )
+            f.close( )
 
         entsNames = dict( )
         for ent in data["entities"] :

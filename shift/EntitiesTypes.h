@@ -23,6 +23,7 @@
 #define __SHIFT__ENTITIES_TYPES__
 
 #include "Entity.h"
+#include "error.h"
 #include <shift/api.h>
 #include <vector>
 #include <string>
@@ -39,6 +40,15 @@ namespace shift
 
     virtual ~EntitiesTypes( void ) {}
     const TEntitiesTypes& entitiesTypes( void ) const { return _entitiesTypes; };
+
+	Entity* getEntityObject( std::string entityTypeName ){
+	for(auto entityTuple : _entitiesTypes ){
+		  if ( entityTypeName ==  std::get<EntitiesTypes::ENTITY_NAME>( entityTuple )){
+			  return std::get<EntitiesTypes::OBJECT>( entityTuple );
+		  }
+	  }
+	  SHIFT_THROW("Entity type not recognised");
+  }
 
   protected:
     TEntitiesTypes _entitiesTypes;

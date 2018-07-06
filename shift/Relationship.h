@@ -76,8 +76,9 @@ namespace shift
 
     SHIFT_API
     static void Establish( RelationshipOneToN& relOneToNOrig,
-                           RelationshipOneToN& relOneToNDest,
-                           Entity* entityOrig, Entity* entityDest );
+      RelationshipOneToN& relOneToNDest, Entity* entityOrig,
+      Entity* entityDest, RelationshipProperties* propertiesOrig = nullptr,
+      RelationshipProperties* propertiesDest = nullptr );
 
   protected:
     TCardinality _cardinality;
@@ -93,8 +94,7 @@ namespace shift
 
   class RelationshipOneToOne
     : public Relationship
-    , public std::unordered_map< EntityGid,
-                                 RelationshipOneToOneDest >
+    , public std::unordered_map< EntityGid, RelationshipOneToOneDest >
   {
   public:
     SHIFT_API RelationshipOneToOne( const std::string& name );
