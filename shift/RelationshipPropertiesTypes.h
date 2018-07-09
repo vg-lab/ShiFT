@@ -62,13 +62,14 @@ namespace shift
     SHIFT_API const TRelationshipPropertiesTypes&
       relationshipPropertiesTypes( void );
 
-    RelationshipProperties* getRelationshipProperties(
+    SHIFT_API RelationshipProperties* getRelationshipProperties(
       const std::string& relationshipName_ );
 
   protected:
     TRelationshipPropertiesTypes _relationshipPropertiesTypes;
     static TConstraintsContainer* _constraints;
-    static void addConstraint( const std::string& constraintTypeName,
+
+    SHIFT_API static void addConstraint( const std::string& constraintTypeName,
       const std::string& srcEntityTypeName,
       const std::string& dstEntityTypeName );
   };
