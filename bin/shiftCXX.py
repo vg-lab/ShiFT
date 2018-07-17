@@ -548,38 +548,26 @@ def main( argv ) :
 
             domainContent += "class RelationshipPropertiesTypes : public shift::RelationshipPropertiesTypes\n" + \
                              "{\n" + \
-                             "public:\n\n"
-
-            domainContent += "  static bool init( );\n\n"
-
-            domainContent += "  RelationshipPropertiesTypes( void )\n" \
-                             "  {\n"
-            for ent in data["entities"] :
-                if ent["name"] in entName and "relationship" in ent:
-                    domainContent += "    this->_relationshipPropertiesTypes[\"" + \
-                                     ent[ "relationship" ] + "\"] = new " +\
-                                     ent[ "namespace" ] + "::" + ent ["name" ] + \
-                                     " ;\n"
-            domainContent += "  }\n" \
-
-            domainContent += "  virtual ~RelationshipPropertiesTypes( void )\n" \
-                             "  {}\n\n"
-            domainContent += "protected:\n"+\
-                             "  static const bool initialized;\n"
-            domainContent += "};\n"
+                             "public:\n\n" \
+                             "  RelationshipPropertiesTypes( void );\n" \
+                             "  virtual ~RelationshipPropertiesTypes( void )\n" \
+                             "  {}\n\n};\n"
 
             # RelationshipPropertiesTypes.cpp
             scope = "RelationshipPropertiesTypes::"
 
             # Container initialization
-            implContent += "const bool RelationshipPropertiesTypes::initialized = RelationshipPropertiesTypes::init();\n\n"
-
-            implContent += "bool RelationshipPropertiesTypes::init( )\n"+\
-                           "  {\n"
+            implContent += "  RelationshipPropertiesTypes::RelationshipPropertiesTypes( void )\n" \
+                             "  {\n"
+            for ent in data["entities"] :
+                if ent["name"] in entName and "relationship" in ent:
+                    implContent += "    this->_relationshipPropertiesTypes[\"" + \
+                                     ent[ "relationship" ] + "\"] = new " + \
+                                     ent[ "namespace" ] + "::" + ent ["name" ] + \
+                                     " ;\n"
             for relationship, constraint in constraints.items( ):
                 for srcEntity, dstEntity in constraint:
                     implContent += '    addConstraint("' + relationship + '", "' + srcEntity + '", "' + dstEntity + '" );\n'
-            implContent += "    return true;\n"
             implContent += "  }\n"
 
         namespaces = data[ "namespace" ].split( "::" )

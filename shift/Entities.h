@@ -32,6 +32,8 @@
 namespace shift
 {
   class Entity;
+  class RelationshipOneToOne;
+  class RelationshipOneToN;
 
   class Entities
   {
@@ -45,6 +47,18 @@ namespace shift
 
     SHIFT_API
     void add( Entity* entity );
+
+    SHIFT_API
+    void remove( Entity* entity );
+
+    SHIFT_API
+    bool addIfNotContains( Entity* entity );
+
+    SHIFT_API
+    bool removeIfContains( Entity* entity );
+
+    SHIFT_API
+    bool  contains( Entity* entity ) const;
 
     IndexedEntitiesValue& at( const IndexedEntitiesKey& idx )
     {
@@ -86,7 +100,6 @@ namespace shift
   protected:
     IndexedEntities _map;
     VectorizedEntities _vector;
-
   };
 
   class Relationship;
@@ -95,10 +108,8 @@ namespace shift
     : public Entities
   {
   public:
-
-
     //! Relations are referenced by a name in a string
-    typedef std::unordered_map< std::string, Relationship* > TRelationshipMap ;
+    typedef std::unordered_map< std::string, Relationship* > TRelationshipMap;
     const TRelationshipMap& relationships( void ) const
     {
       return _relationships;
