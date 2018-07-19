@@ -111,8 +111,50 @@ namespace shift
       RelationshipOneToNDest( entityDestGid, propertiesOrig ));
     relOneToNDest[ entityDestGid ].insert(
       RelationshipOneToNDest( entityOrigGid, propertiesDest ));
-
   }
 
+  void Relationship::AggregatedEstablish(
+    RelationshipOneToN& relOriginalOneToNOrig,
+    RelationshipOneToN& relOriginalOneToNDest,
+    RelationshipOneToN& relAggregatedOneToNOrig,
+    RelationshipOneToN& relAggregatedOneToNDest,
+    RelationshipOneToN& relSearchSubOneToN,
+    RelationshipOneToOne& relSearchSupOneToOne,
+    Entities& searchEntities, Entity* entityOrig,
+    Entity* entityDest, RelationshipProperties* propertiesOrig,
+    RelationshipProperties* propertiesDest )
+  {
+    Establish( relOriginalOneToNOrig, relOriginalOneToNDest, entityOrig,
+      entityDest, propertiesOrig, propertiesDest );
+    if ( entityDest->entityGid( ) != entityOrig->entityGid( ))
+    {
+      Entities* entitiesDest = new Entities( );
+      entitiesDest->addRelatedEntitiesOneToN( relSearchSubOneToN, entityDest,
+        searchEntities );
+      entitiesDest->addRelatedEntitiesOneToOne( relSearchSupOneToOne,
+        entityDest, searchEntities );
 
+      for ( Entity* relatedDest : entitiesDest->vector( ))
+      {
+        Establish( relAggregatedOneToNOrig, relAggregatedOneToNDest, entityOrig,
+          relatedDest, propertiesOrig, propertiesDest );
+      }
+
+      Entities* entitiesOrig = new Entities( );
+      entitiesDest->add( entityDest );
+      entitiesOrig->addRelatedEntitiesOneToN( relSearchSubOneToN, entityOrig,
+        searchEntities, 0, entitiesDest );
+      entitiesOrig->addRelatedEntitiesOneToOne( relSearchSupOneToOne,
+        entityOrig, searchEntities, 0, entitiesDest );
+
+      for ( Entity* relatedOrig : entitiesOrig->vector( ))
+      {
+        for ( Entity* relatedDest : entitiesDest->vector( ))
+        {
+          Establish( relAggregatedOneToNOrig, relAggregatedOneToNDest,
+            relatedOrig, relatedDest, propertiesOrig, propertiesDest );
+        }
+      }
+    }
+  }
 } // namespace shift

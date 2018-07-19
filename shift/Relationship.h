@@ -22,6 +22,7 @@
 #ifndef __SHIFT__RELATIONSHIP__
 #define __SHIFT__RELATIONSHIP__
 
+#include "Entities.h"
 #include "Entity.h"
 #include "Properties.h"
 #include <shift/api.h>
@@ -33,7 +34,7 @@
 namespace shift
 {
   class Entity;
-
+  class Entities;
 
   class RelationshipProperties
     : public Properties
@@ -77,6 +78,18 @@ namespace shift
     SHIFT_API
     static void Establish( RelationshipOneToN& relOneToNOrig,
       RelationshipOneToN& relOneToNDest, Entity* entityOrig,
+      Entity* entityDest, RelationshipProperties* propertiesOrig = nullptr,
+      RelationshipProperties* propertiesDest = nullptr );
+
+    SHIFT_API
+    static void AggregatedEstablish(
+      RelationshipOneToN& relOriginalOneToNOrig,
+      RelationshipOneToN& relOriginalOneToNDest,
+      RelationshipOneToN& relAggregatedOneToNOrig,
+      RelationshipOneToN& relAggregatedOneToNDest,
+      RelationshipOneToN& relSearchSubOneToN,
+      RelationshipOneToOne& relSearchSupOneToOne,
+      Entities& searchEntities, Entity* entityOrig,
       Entity* entityDest, RelationshipProperties* propertiesOrig = nullptr,
       RelationshipProperties* propertiesDest = nullptr );
 

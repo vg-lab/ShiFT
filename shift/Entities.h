@@ -24,6 +24,7 @@
 
 #include "Entity.h"
 #include "Relationship.h"
+#include "error.h"
 #include <shift/api.h>
 #include <assert.h>
 #include <unordered_map>
@@ -60,6 +61,28 @@ namespace shift
     SHIFT_API
     bool  contains( Entity* entity ) const;
 
+    SHIFT_API
+    void addRelatedEntitiesOneToN( RelationshipOneToN& relation,
+      const Entity* entity, const Entities& searchEntities, int depthLevel = 0,
+      Entities* compareEntities = nullptr, bool removeIfContained = true,
+      bool removeContainedRelatives = true );
+
+    SHIFT_API
+    void addRelatedEntitiesOneToOne( RelationshipOneToOne& relation,
+      const Entity* entity, const Entities& searchEntities, int depthLevel = 0,
+      Entities* compareEntities = nullptr, bool removeIfContained = true,
+      bool removeContainedRelatives = true );
+
+    SHIFT_API
+    void removeRelatedEntitiesOneToN( RelationshipOneToN& relation,
+      const Entity* entity, const Entities& searchEntities,
+      int depthLevel = 0 );
+
+    SHIFT_API
+    void removeRelatedEntitiesOneToOne( RelationshipOneToOne& relation,
+      const Entity* entity, const Entities& searchEntities,
+      int depthLevel = 0 );
+
     IndexedEntitiesValue& at( const IndexedEntitiesKey& idx )
     {
       return _map.at( idx );
@@ -72,7 +95,8 @@ namespace shift
 
     size_t size( void ) const
     {
-      assert( _vector.size( ) == _map.size( ));
+      SHIFT_CHECK_THROW(_vector.size( ) == _map.size( ),
+        "ERROR: size incoherence between map and vector" );
       return _map.size( );
     }
 
