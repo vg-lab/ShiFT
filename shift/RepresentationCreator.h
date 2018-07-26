@@ -80,7 +80,14 @@ namespace shift
       const shift::TGidToEntitiesReps& gidsToEntitiesReps,
       shift::TRelatedEntitiesReps& relatedEntitiesReps,
       shift::Representations& relatedEntities,
-      const std::string& relationName ) = 0;
+      shift::RelationshipOneToN* relatedElements ) = 0;
+
+    virtual void generateRelations(
+      const shift::Entities& entities,
+      const shift::TGidToEntitiesReps& gidsToEntitiesReps,
+      shift::TRelatedEntitiesReps& relatedEntitiesReps,
+      shift::Representations& relatedEntities,
+      shift::RelationshipAggregatedOneToN* relatedElements )  = 0;
 
     virtual void clear( void ) { }
 
