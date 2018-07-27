@@ -20,7 +20,7 @@ function( shift_generate_cxx
     __NAME__
     __OBJS__ )
 
-  set( __OUTPUT_FILES__ ${__OUTPUT_FILES__} ${__NAME__}.h ${__NAME__}.cpp )
+  set( __OUTPUT_FILES__ ${__OUTPUT_FILES__} ${__NAME__}.h )
   foreach( __OBJ__ ${__OBJS__} )
     set( __OUTPUT_FILES__ ${__OUTPUT_FILES__}
       ${__OUT_DIR__}/shift_${__OBJ__}.cpp
