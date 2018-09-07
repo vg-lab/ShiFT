@@ -59,7 +59,10 @@ namespace shift
     bool removeIfContains( Entity* entity );
 
     SHIFT_API
-    bool  contains( Entity* entity ) const;
+    bool contains( Entity* entity ) const;
+
+    SHIFT_API
+    bool empty( void ) const;
 
     SHIFT_API
     void addRelatedEntitiesOneToN( RelationshipOneToN& relation,

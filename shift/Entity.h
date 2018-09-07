@@ -95,7 +95,9 @@ namespace shift
       const std::string& destPropertyLabel );
 
     virtual void setRelatedDependencies( const std::string& /* relName */,
-                                         shift::Entity* /* dependency */ ) {}
+      shift::Entity* /* dependency */ ) {}
+    virtual void removeRelatedDependencies( const std::string& /* relName */,
+      shift::Entity* /* dependency */ ) {}
 
   protected:
     EntityGid _entityGid;

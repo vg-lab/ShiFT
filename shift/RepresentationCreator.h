@@ -87,7 +87,7 @@ namespace shift
       const shift::TGidToEntitiesReps& gidsToEntitiesReps,
       shift::TRelatedEntitiesReps& relatedEntitiesReps,
       shift::Representations& relatedEntities,
-      shift::RelationshipAggregatedOneToN* relatedElements )  = 0;
+      shift::RelationshipAggregatedOneToN* relatedElements ) = 0;
 
     virtual void clear( void ) { }
 

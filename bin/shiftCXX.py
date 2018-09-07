@@ -144,6 +144,10 @@ def print_header( objectType, ents, ent, file ):
     if objectType == "Entity" :
         body += "    void setRelatedDependencies( const std::string& relName,\n" \
                 "                                 shift::Entity* dependency ) final;\n"
+    # remove related dependencies method declaration
+    if objectType == "Entity" :
+        body += "    void removeRelatedDependencies( const std::string& relName,\n" \
+                "                                 shift::Entity* dependency ) final;\n"
 
 
     # propertyFlags method declaration and definition
@@ -454,6 +458,36 @@ def print_impl( objectType, ents, ent, file ):
                         "      fires::DependenciesManager::setUpdater(\n" + \
                         "        this, \"" + prop[ "name" ] + "\", " \
                         " this, &" + ent[ "name" ] + "::autoUpdateProperty );\n" \
+                        "      fires::DependenciesManager::setDependentsDirty(\n" \
+                        "        this, \"" + prop[ "name" ] + "\", true );\n"
+
+
+                body += "    }\n"
+
+        body += "    }\n"
+
+    # remove related dependencies method definition
+    if objectType == "Entity" :
+        body += "  void " + ent[ "name" ] + "::removeRelatedDependencies(\n" \
+               "    const std::string& relName,\n" \
+               "    shift::Entity* dependency )\n" \
+               "  {\n    ( void ) relName; ( void ) dependency;\n"
+        for prop in ent[ "properties" ] :
+            if "auto" in prop and \
+               "source" in prop[ "auto" ] and \
+               "entities" in prop[ "auto" ][ "source" ] and \
+               "property" in prop[ "auto" ][ "source" ] :
+                auto = prop[ "auto" ]
+                relEntComp = [ "dependency->entityName( ) == \"" + s + "\""  for s in auto[ "source" ][ "entities" ]]
+                body += "    if ( relName == \"" + auto[ "source" ][ "relName" ] +"\" &&\n" + \
+                        "        ( "
+                body += ' ||\n          '.join( str( relEnt ) for relEnt in relEntComp )
+                body += " ))\n" + \
+                        "    {\n"
+                body += "      fires::DependenciesManager::removeDependency(\n" + \
+                        "        this, \"" + \
+                        prop[ "name" ] + "\", dependency, \"" + \
+                        auto[ "source" ][ "property" ] + "\" );\n" + \
                         "      fires::DependenciesManager::setDependentsDirty(\n" \
                         "        this, \"" + prop[ "name" ] + "\", true );\n"
 

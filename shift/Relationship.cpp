@@ -89,33 +89,126 @@ namespace shift
     RelationshipOneToOne& relOneToOne,
     Entity* entityOrig, Entity* entityDest )
   {
+    //Checks the entity exists
     SHIFT_CHECK_THROW( entityOrig && entityDest, "Entity doesnt exist" );
-    auto entityOrigGid = entityOrig->entityGid( );
-    auto entityDestGid = entityDest->entityGid( );
+    //Obtain all the entites GIDs
+    const auto entityOrigGid = entityOrig->entityGid( );
+    const auto entityDestGid = entityDest->entityGid( );
+    //Inserts the relation
     relOneToN[ entityOrigGid ].insert( RelationshipOneToNDest( entityDestGid,
-                                                               nullptr ));
+      nullptr ));
     relOneToOne[ entityDestGid ].entity = entityOrigGid;
-
+    //insert entities dependencies
     entityOrig->setRelatedDependencies( relOneToN.name( ), entityDest );
     entityDest->setRelatedDependencies( relOneToOne.name( ), entityOrig );
+  }
+
+  void Relationship::relationBreak( RelationshipOneToN& relOneToNOrig,
+    RelationshipOneToN& relOneToNDest, Entity* entityOrig,
+    Entity* entityDest )
+  {
+    //Checks the entity exists
+    SHIFT_CHECK_THROW( entityOrig && entityDest, "Entity doesnt exist" );
+    //Obtain all the entites GIDs
+    const auto entityOrigGid = entityOrig->entityGid( );
+    const auto entityDestGid = entityDest->entityGid( );
+    //Finds and erase the orig-dest origRelation
+    auto entityRelations = relOneToNOrig.find( entityOrigGid );
+    SHIFT_CHECK_THROW( entityRelations != relOneToNOrig.end( ),
+      "Original relation doesn't exist" );
+    auto connectionIt = entityRelations->second.find( entityDestGid );
+    RelationshipProperties* origProperties = nullptr;
+    if( connectionIt != entityRelations->second.end( ))
+    {
+      origProperties = connectionIt->second;
+      delete origProperties;
+      if(entityRelations->second.size( ) == 1)
+      {
+        relOneToNOrig.erase( entityRelations );
+      }
+      else
+      {
+        entityRelations->second.erase( connectionIt );
+      }
+    }
+
+    //Finds and erase the dest-orig destRelation
+    entityRelations = relOneToNDest.find( entityDestGid );
+    SHIFT_CHECK_THROW( entityRelations != relOneToNDest.end( ),
+      "Destiny relation doesn't exist" );
+    connectionIt = entityRelations->second.find( entityOrigGid );
+    if( connectionIt != entityRelations->second.end( ))
+    {
+      if( connectionIt->second && connectionIt->second != origProperties )
+      {
+        delete connectionIt->second;
+      }
+      if( entityRelations->second.size( ) == 1 )
+      {
+        relOneToNDest.erase( entityRelations );
+      }
+      else
+      {
+        entityRelations->second.erase( connectionIt );
+      }
+    }
+  }
+
+  void Relationship::relationBreak( RelationshipOneToN& relOneToNOrig,
+    RelationshipOneToOne& relOneToOneDest, Entity* entityOrig,
+    Entity* entityDest )
+  {
+    //Checks the entity exists
+    SHIFT_CHECK_THROW( entityOrig && entityDest, "Entity doesnt exist" );
+    //Obtain all the entites GIDs
+    const auto entityOrigGid = entityOrig->entityGid( );
+    const auto entityDestGid = entityDest->entityGid( );
+    //Finds and erase the orig-dest origRelation
+    auto entityRelations = relOneToNOrig.find( entityOrigGid );
+    SHIFT_CHECK_THROW( entityRelations != relOneToNOrig.end( ),
+                       "Original relation doesn't exist" );
+    auto connectionIt = entityRelations->second.find( entityDestGid );
+    if( connectionIt != entityRelations->second.end( ))
+    {
+      if(entityRelations->second.size( ) == 1)
+      {
+        relOneToNOrig.erase( entityRelations );
+      }
+      else
+      {
+        entityRelations->second.erase( connectionIt );
+      }
+    }
+
+    //Finds and erase the dest-orig destRelation
+    auto entityRelations1 = relOneToOneDest.find( entityDestGid );
+    SHIFT_CHECK_THROW( entityRelations1 != relOneToOneDest.end( ),
+      "Destiny relation doesn't exist" );
+    relOneToOneDest.erase( entityRelations1 );
+
+    //insert entities dependencies
+    entityOrig->removeRelatedDependencies( relOneToNOrig.name( ), entityDest );
+    entityDest->removeRelatedDependencies( relOneToOneDest.name( ), entityOrig );
 
   }
+
 
   void Relationship::Establish( RelationshipOneToN& relOneToNOrig,
     RelationshipOneToN& relOneToNDest, Entity* entityOrig,
     Entity* entityDest, RelationshipProperties* propertiesOrig,
     RelationshipProperties* propertiesDest  )
   {
-    SHIFT_CHECK_THROW( entityOrig && entityDest, "Entity doesnt exist" );
-    auto entityOrigGid = entityOrig->entityGid( );
-    auto entityDestGid = entityDest->entityGid( );
-
+    //Checks the entity exists
+    SHIFT_CHECK_THROW( entityOrig && entityDest, "Entity doesn't exist" );
+    //Obtain all the entites GIDs
+    const auto entityOrigGid = entityOrig->entityGid( );
+    const auto entityDestGid = entityDest->entityGid( );
+    //Inserts the relation
     relOneToNOrig[ entityOrigGid ].insert(
       RelationshipOneToNDest( entityDestGid, propertiesOrig ));
     relOneToNDest[ entityDestGid ].insert(
       RelationshipOneToNDest( entityOrigGid, propertiesDest ));
   }
-
 
   void Relationship::Establish( RelationshipAggregatedOneToN& relOneToNOrig,
     RelationshipAggregatedOneToN& relOneToNDest, Entity* entityOrig,
@@ -123,15 +216,18 @@ namespace shift
     RelationshipProperties* propertiesOrig,
     RelationshipProperties* propertiesDest )
   {
+    //Checks the entity exists
     SHIFT_CHECK_THROW( entityOrig && entityDest && entityBaseOrig
       && entityBaseDest, "Entity doesnt exist" );
-    auto entityOrigGid = entityOrig->entityGid( );
-    auto entityDestGid = entityDest->entityGid( );
-    auto entityBaseOrigGid = entityBaseOrig->entityGid( );
-    auto entityBaseDestGid = entityBaseDest->entityGid( );
+    //Obtain all the entites GIDs
+    const auto entityOrigGid = entityOrig->entityGid( );
+    const auto entityDestGid = entityDest->entityGid( );
+    const auto entityBaseOrigGid = entityBaseOrig->entityGid( );
+    const auto entityBaseDestGid = entityBaseDest->entityGid( );
+    //Checks that the aggregated relation it's not the original relation
     SHIFT_CHECK_THROW( entityOrigGid != entityBaseOrigGid
       || entityBaseDestGid != entityDestGid, "Aggregating normal connection" );
-
+    //Inserts the aggregated relation
     relOneToNOrig.addBaseRelation( entityOrigGid, entityDestGid,
       entityBaseOrigGid, entityBaseDestGid, propertiesOrig );
     relOneToNDest.addBaseRelation( entityDestGid, entityOrigGid,
@@ -144,21 +240,40 @@ namespace shift
     RelationshipAggregatedOneToN& /*relAggregatedOneToNDest*/,
     Entity* entityOrig, Entity* entityDest )
   {
+    //Establish the hierarchy relationship
     Establish(relOneToN,relOneToOne,entityOrig,entityDest);
+
     //todo: modify aggregated dependencies
-
-    //RelationshipOneToN& relOriginalOneToNOrig =
-    // *(relAggregatedOneToNOrig._baseRelationShip);
-    //RelationshipOneToN& relOriginalOneToNDest =
-    // *(relAggregatedOneToNDest._baseRelationShip);
-    //RelationshipOneToOne& relSearchOneToOne =
-    // *(relAggregatedOneToNOrig._hierarchyRelationShip);
-
-    //Search entity and look for all the aggregated relationships
-    //Add to all the aggregatedRelations the new parent
-    //Repeat for connections
   }
 
+  void Relationship::BreakAnAggregatedRelation(
+    RelationshipAggregatedOneToN& relAggregatedOneToNOrig,
+    RelationshipAggregatedOneToN& relAggregatedOneToNDest,
+    Entities& /*searchEntities*/, Entity* entityOrig,
+    Entity* entityDest )
+  {
+    //Get base relations
+    RelationshipOneToN& relOriginalOneToNOrig =
+      *( relAggregatedOneToNOrig.baseRelationShip( ));
+    RelationshipOneToN& relOriginalOneToNDest =
+      *( relAggregatedOneToNDest.baseRelationShip( ));
+
+    //Obtain entities Gids
+    const auto destGid = entityDest->entityGid( );
+    const auto origGid = entityOrig->entityGid( );
+
+    //Checks that it's not a auto-relation
+    if ( destGid != origGid )
+    {
+      //Update the dependent aggregated relations
+      relAggregatedOneToNDest.removeDependentRelation( destGid, origGid );
+      relAggregatedOneToNOrig.removeDependentRelation( origGid, destGid );
+    }
+
+    //Break the original relation
+    relationBreak( relOriginalOneToNOrig, relOriginalOneToNDest, entityOrig,
+      entityDest );
+  }
 
   void Relationship::EstablishAndAggregate(
     RelationshipAggregatedOneToN& relAggregatedOneToNOrig,
@@ -168,34 +283,40 @@ namespace shift
     RelationshipProperties* propertiesDest )
   {
     RelationshipOneToN& relOriginalOneToNOrig =
-      *(relAggregatedOneToNOrig._baseRelationShip);
+      *(relAggregatedOneToNOrig.baseRelationShip( ));
     RelationshipOneToN& relOriginalOneToNDest =
-      *(relAggregatedOneToNDest._baseRelationShip);
+      *(relAggregatedOneToNDest.baseRelationShip( ));
     RelationshipOneToOne& relHierarchyOneToOne =
-      *(relAggregatedOneToNOrig._hierarchyRelationShip);
+      *(relAggregatedOneToNOrig.hierarchyRelationShip( ));
 
+    //Establish original relation
     Establish( relOriginalOneToNOrig, relOriginalOneToNDest, entityOrig,
       entityDest, propertiesOrig, propertiesDest );
+
     if ( entityDest->entityGid( ) != entityOrig->entityGid( ))
     {
-      Entities* entitiesDest = new Entities( );
-      entitiesDest->addRelatedEntitiesOneToOne( relHierarchyOneToOne,
+      //Search for all not common parents
+      Entities entitiesDest;
+      entitiesDest.addRelatedEntitiesOneToOne( relHierarchyOneToOne,
         entityDest, searchEntities );
+      Entities entitiesOrig;
+      entitiesDest.add( entityDest );
+      entitiesOrig.addRelatedEntitiesOneToOne( relHierarchyOneToOne,
+        entityOrig, searchEntities, 0, &entitiesDest );
+      entitiesDest.remove( entityDest );
 
-      for ( Entity* relatedDest : entitiesDest->vector( ))
+      //Establishes between origin whith all entities related with the destiny
+      for ( Entity* relatedDest : entitiesDest.vector( ))
       {
         Establish( relAggregatedOneToNOrig, relAggregatedOneToNDest, entityOrig,
           relatedDest, entityOrig, entityDest, propertiesOrig, propertiesDest );
       }
-
-      Entities* entitiesOrig = new Entities( );
-      entitiesDest->add( entityDest );
-      entitiesOrig->addRelatedEntitiesOneToOne( relHierarchyOneToOne,
-        entityOrig, searchEntities, 0, entitiesDest );
-
-      for ( Entity* relatedOrig : entitiesOrig->vector( ))
+      //Establishes between all origin relatives with the
+      //destiny and all their relatives
+      entitiesDest.add( entityDest );
+      for ( Entity* relatedOrig : entitiesOrig.vector( ))
       {
-        for ( Entity* relatedDest : entitiesDest->vector( ))
+        for ( Entity* relatedDest : entitiesDest.vector( ))
         {
           Establish( relAggregatedOneToNOrig, relAggregatedOneToNDest,
             relatedOrig, relatedDest, entityOrig, entityDest, propertiesOrig,
@@ -205,146 +326,239 @@ namespace shift
     }
   }
 
-  bool RelationshipAggregatedOneToN::removeDependentRelation(
-    EntityGid /*entityToSearch*/, EntityGid /*entityOrigRemove*/,
-    EntityGid /*entityDestRemove*/ )
+  void RelationshipAggregatedOneToN::removeDependentRelation(
+    EntityGid entityOrigRemove, EntityGid entityDestRemove )
   {
-    //todo
-    return false;
-  }
+    //Search in the base map the original relation origin
+    const auto baseOrigIt = _mapBaseRels.find( entityOrigRemove );
+    if ( baseOrigIt == _mapBaseRels.end( ))
+    {
+      //If not aggregated relations are found for this entity, return
+      return;
+    }
 
-  bool RelationshipAggregatedOneToN::removeDependentRelation(
-    EntityGid /*entityToSearch*/, EntityGid /*entityOrigRemove*/ )
-  {
-    //todo
-    return false;
+    //Find in the original relation origin-destiny
+    const auto baseRelationIt = baseOrigIt->second->find( entityDestRemove );
+    if ( baseRelationIt == baseOrigIt->second->end( ))
+    {
+      //If not aggregated relations are found for this relation, return
+      return;
+    }
+    const auto aggregatedDependencies =
+      baseRelationIt->second.aggregatedRelations;
+    const auto* relationProperties = baseRelationIt->second.relationProperties;
+    //Iterates over all the aggregated relations origin of the base relation
+    for ( auto dependentOrigIt = aggregatedDependencies->begin( );
+      dependentOrigIt != aggregatedDependencies->end( ); dependentOrigIt++ )
+    {
+      auto AgreggatedOrigIt =
+        _mapAggregatedRels.find( dependentOrigIt->first );
+      //Iterates over all the aggregated relations of the base relation
+      for ( auto dependentRelIt = dependentOrigIt->second->begin( );
+        dependentRelIt != dependentOrigIt->second->end( ); dependentRelIt++ )
+      {
+        //Remove the base relation properties from the list of relation
+        //properties use to calculate the aggregated relation properties
+        auto baseProperties = dependentRelIt->second.basedProperties;
+        auto removePropertyPosition = std::find( baseProperties->begin( ),
+          baseProperties->end( ), relationProperties );
+        SHIFT_CHECK_THROW( removePropertyPosition != baseProperties->end( ),
+          "Error base properties are not in the dependent properties" );
+        baseProperties->erase( removePropertyPosition );
+
+        if( dependentRelIt->second.basedProperties->empty( ))
+        {
+          //If the list of relation properties its empty,
+          //erase the aggregated relation
+          AgreggatedOrigIt->second->erase(
+            AgreggatedOrigIt->second->find( dependentRelIt->first ));
+        }
+        else
+        {
+          //Update the relation properties to reflect
+          //the new list of relation properties
+          updateAggregatedProperties( &dependentRelIt->second );
+        }
+      }
+      if ( AgreggatedOrigIt->second->empty( ))
+      {
+        //If the origin has not aggregated relations left,
+        //remove the origin from the map
+        _mapAggregatedRels.erase( AgreggatedOrigIt );
+      }
+
+    }
+    //Memory free
+    baseOrigIt->second->erase( baseRelationIt );
+    if(baseOrigIt->second->empty( ))
+    {
+      _mapBaseRels.erase( baseOrigIt );
+    }
   }
 
   void RelationshipAggregatedOneToN::addBaseRelation( EntityGid entityOrig,
     EntityGid entityDest, EntityGid entityBaseOrig, EntityGid entityBaseDest,
     RelationshipProperties* relationshipBaseProperties )
   {
-    const auto mapRelationsOrigIt = mapRelations->find( entityOrig );
-    RelationshipProperties* relationshipProperties = nullptr;
+    //Update/creates the aggregated relation
+
+    //Find the aggregated relation origin
+    const auto aggregatedOrigIt = _mapAggregatedRels.find( entityOrig );
+
+    std::shared_ptr< RelationshipProperties >
+      aggregatedRelationProperties;
     RelationshipAggregatedOneToNProperties*
-      relationshipAggregatedOneToNProperties = nullptr;
-    std::vector < RelationshipProperties* >* vectorProperties;
-    if ( mapRelationsOrigIt != mapRelations->end( ))
+      relationshipAggregatedOneToNProperties;
+    std::shared_ptr< std::vector < RelationshipProperties* >>
+      baseVectorProperties;
+
+    if ( aggregatedOrigIt != _mapAggregatedRels.end( ))
     {
-      std::map < EntityGid, RelationshipAggregatedOneToNProperties >*
-        secondMap = mapRelationsOrigIt->second;
-      const auto mapRelationsDestIt = secondMap->find( entityDest );
-      if ( mapRelationsDestIt != secondMap->end( ))
+      //The aggregated origin has already aggregated relations
+      std::shared_ptr< AggregatedOneToNAggregatedDests >
+        aggregatedDestsMap( aggregatedOrigIt->second );
+      //Find the aggregated relation
+      const auto aggregatedRelIt = aggregatedDestsMap->find( entityDest );
+      if ( aggregatedRelIt != aggregatedDestsMap->end( ))
       {
-        relationshipAggregatedOneToNProperties = &mapRelationsDestIt->second;
-        relationshipProperties =
-          mapRelationsDestIt->second.relationshipAggregatedProperties;
-        vectorProperties = mapRelationsDestIt->second.basedProperties;
-        if ( relationshipBaseProperties )
-        {
-          auto insertIt =
-            std::find( vectorProperties->begin( ), vectorProperties->end( ),
-            relationshipBaseProperties );
-          SHIFT_CHECK_THROW( insertIt == vectorProperties->end( ),
-            "Repeated not null relation properties" );
-        }
+        //The aggregated relation already exists so its updated
+        //Stores the existing relation properties
+        relationshipAggregatedOneToNProperties = &aggregatedRelIt->second;
+        aggregatedRelationProperties =
+          aggregatedRelIt->second.relationshipAggregatedProperties;
+        baseVectorProperties = aggregatedRelIt->second.basedProperties;
       }
       else
       {
-        vectorProperties = new std::vector < RelationshipProperties* >( );
-        relationshipProperties = _baseProperties->create( );
+        //The aggregated relation doesnt exit,
+        //Their properties are created and stored
+        baseVectorProperties.reset( new std::vector < RelationshipProperties* >( ));
+        aggregatedRelationProperties.reset( _baseProperties->create( ));
         relationshipAggregatedOneToNProperties =
-          new RelationshipAggregatedOneToNProperties( vectorProperties,
-          relationshipProperties );
-        secondMap->insert( std::make_pair( entityDest,
+          new RelationshipAggregatedOneToNProperties( baseVectorProperties,
+          aggregatedRelationProperties );
+        //The new aggregated relation its added to the map
+        aggregatedDestsMap->insert( std::make_pair( entityDest,
           *relationshipAggregatedOneToNProperties ));
       }
     }
     else
     {
-      const auto secondMap =
-        new std::map < EntityGid, RelationshipAggregatedOneToNProperties >( );
-
-      vectorProperties = new std::vector < RelationshipProperties* >( );
-      relationshipProperties = _baseProperties->create( );
+      //The aggregated origin its not related
+      //The aggregated relation properties are created and stored
+      baseVectorProperties.reset( new std::vector < RelationshipProperties* >( ));
+      aggregatedRelationProperties.reset( _baseProperties->create( ));
       relationshipAggregatedOneToNProperties =
-        new RelationshipAggregatedOneToNProperties( vectorProperties,
-        relationshipProperties );
-      secondMap->insert(
-        std::make_pair( entityDest, *relationshipAggregatedOneToNProperties ));
+        new RelationshipAggregatedOneToNProperties( baseVectorProperties,
+        aggregatedRelationProperties );
 
-      mapRelations->insert( std::make_pair( entityOrig, secondMap ));
-
+      //The new aggregated relation its added to the map,
+      const std::shared_ptr< AggregatedOneToNAggregatedDests >
+        aggregatedDestsMap( new AggregatedOneToNAggregatedDests( ));
+      aggregatedDestsMap->insert( std::make_pair(
+        entityDest, *relationshipAggregatedOneToNProperties ));
+      _mapAggregatedRels.insert( std::make_pair( entityOrig,
+        aggregatedDestsMap ));
     }
-    vectorProperties->push_back( relationshipBaseProperties );
+    //The properties of the base relation are added to the aggregated relation
+    baseVectorProperties->push_back( relationshipBaseProperties );
 
+    //Update/Adds the base reference relations
 
-    auto mapBaseOrigIt = mapBase->find( entityBaseOrig );
-    std::vector< std::pair
-      < EntityGid, RelationshipAggregatedOneToNProperties >>* vectorEntities;
-    auto pair = std::pair < EntityGid, RelationshipAggregatedOneToNProperties >(
+    //Find the base relation origin
+    auto mapBaseOrigIt = _mapBaseRels.find( entityBaseOrig );
+
+    std::shared_ptr< AggregatedOneToNDependentProperties > dependentDestsVector;
+    auto pair = AggregatedOneToNDependentProperty(
       entityDest, *relationshipAggregatedOneToNProperties );
 
-    if ( mapBaseOrigIt != mapBase->end( ))
+    if ( mapBaseOrigIt != _mapBaseRels.end( ))
     {
-      const std::map < EntityGid, RelationshipBasesAggregatedOneToN >
-        * secondMap = mapBaseOrigIt->second;
-      const auto mapBaseDestIt = secondMap->find( entityBaseDest );
-
-      if ( mapBaseDestIt != secondMap->end( ))
+      //The base origin has already relations
+      std::shared_ptr< AggregatedOneToNBaseDests >
+        baseDestsMap( mapBaseOrigIt->second );
+      //Find the base relation
+      const auto baseRelIt = baseDestsMap->find( entityBaseDest );
+      if ( baseRelIt != baseDestsMap->end( ))
       {
-        SHIFT_CHECK_THROW( mapBaseDestIt->second.relationProperties ==
-          relationshipBaseProperties,
-          "Different properties for the same connection" );
-        std::map < EntityGid, std::vector <
-          std::pair< EntityGid, RelationshipAggregatedOneToNProperties >>* >
-          * mapEntities = mapBaseDestIt->second.aggregatedRelations;
-        auto mapEntitiesIt = mapEntities->find( entityOrig );
-        if ( mapEntitiesIt != mapEntities->end( ))
+        //The base relation already exists so its updated
+        //Stores the existing relation properties
+        baseRelIt->second.relationProperties = relationshipBaseProperties;
+        std::shared_ptr< AggregatedOneToNDependentRelations >
+          dependentOriginsMap = baseRelIt->second.aggregatedRelations;
+        auto dependentOrigIt = dependentOriginsMap->find( entityOrig );
+        if ( dependentOrigIt != dependentOriginsMap->end( ))
         {
-          vectorEntities = mapEntitiesIt->second;
-//          auto insertIt =
-//            std::find( vectorEntities->begin( ), vectorEntities->end( ),
-//                       pair );
-//          SHIFT_CHECK_THROW( insertIt == vectorEntities->end( ),
-//                             "Repeated aggregation of a connection" );
+          //The aggregated origin already depends of the relation
+          dependentDestsVector = dependentOrigIt->second;
         }
         else
         {
-          vectorEntities = new std::vector <
-            std::pair< EntityGid, RelationshipAggregatedOneToNProperties >>( );
+          //Creates and insert a new dependency between origin and destiny
+          dependentDestsVector.reset(
+            new AggregatedOneToNDependentProperties( ));
+          dependentOriginsMap->insert(
+            std::make_pair( entityOrig, dependentDestsVector ));
         }
       }
       else
       {
-        vectorEntities = new std::vector <
-          std::pair< EntityGid, RelationshipAggregatedOneToNProperties >>( );
+        //The base relation doesnt exit,
+        //Their properties are created and stored
+        dependentDestsVector.reset(
+          new AggregatedOneToNDependentProperties( ));
+        std::shared_ptr< AggregatedOneToNDependentRelations >
+          dependentOriginsMap( new AggregatedOneToNDependentRelations( ));
+        dependentOriginsMap->insert(
+          std::make_pair( entityOrig, dependentDestsVector ));
+        RelationshipBasesAggregatedOneToN* baseProperties =
+          new RelationshipBasesAggregatedOneToN( dependentOriginsMap,
+          relationshipBaseProperties );
+        //The new base relation its added to the map
+        baseDestsMap->insert(
+          std::make_pair( entityBaseDest, *baseProperties ));
+
       }
     }
     else
     {
-      vectorEntities = new std::vector <
-        std::pair< EntityGid, RelationshipAggregatedOneToNProperties >>( );
-      auto mapEntities = new std::map < EntityGid, std::vector <
-        std::pair< EntityGid, RelationshipAggregatedOneToNProperties >>* >( );
-      mapEntities->insert( std::make_pair( entityBaseDest, vectorEntities ));
+      //The base origin its not related
+      //The base relation properties are created and stored
+      dependentDestsVector.reset( new AggregatedOneToNDependentProperties( ));
+      std::shared_ptr< AggregatedOneToNDependentRelations >
+          dependentOriginsMap( new AggregatedOneToNDependentRelations( ));
+      dependentOriginsMap->insert(
+        std::make_pair( entityOrig, dependentDestsVector ));
       RelationshipBasesAggregatedOneToN* baseProperties =
-        new RelationshipBasesAggregatedOneToN( mapEntities,
+        new RelationshipBasesAggregatedOneToN( dependentOriginsMap,
         relationshipBaseProperties );
-      auto secondMap =
-        new std::map< EntityGid, RelationshipBasesAggregatedOneToN >( );
-      secondMap->insert( std::make_pair( entityDest, *baseProperties ));
-      mapBase->insert( std::make_pair( entityBaseOrig, secondMap ));
+      std::shared_ptr< AggregatedOneToNBaseDests > baseDestsMap(
+        new AggregatedOneToNBaseDests( ));
+      baseDestsMap->insert(
+        std::make_pair( entityBaseDest, *baseProperties ));
+      //The new base relation its added to the map
+      _mapBaseRels.insert( std::make_pair( entityBaseOrig, baseDestsMap ));
     }
-    vectorEntities->push_back( pair );
 
+    dependentDestsVector->push_back( pair );
+    updateAggregatedProperties( relationshipAggregatedOneToNProperties );
+  }
+
+  void RelationshipAggregatedOneToN::updateAggregatedProperties(
+      RelationshipAggregatedOneToNProperties* aggregatedProperties )
+  {
+    //todo
+    // Provisional calc of weight/count as number od dependent relations
+    auto relationshipProperties =
+        aggregatedProperties->relationshipAggregatedProperties;
+    auto vectorProperties =
+        aggregatedProperties->basedProperties;
     if ( relationshipProperties )
     {
-      //todo: aggregated properties in relationships
       if ( relationshipProperties->hasProperty( "Weight" ))
       {
         relationshipProperties->getProperty( "Weight" )
-          .set( float( 1.0f + vectorProperties->size( )));
+          .set( float( vectorProperties->size( )));
       }
       else if ( relationshipProperties->hasProperty( "count" ))
       {
@@ -357,8 +571,6 @@ namespace shift
       }
     }
   }
-
-
 
   RelationshipAggregatedOneToN*
   RelationshipAggregatedOneToN::asAggregatedOneToN( void )
@@ -375,13 +587,25 @@ namespace shift
     , _baseProperties( baseProperties_ )
     , _hierarchyRelationShip( hierarchyRelationShip_ )
     , _baseRelationShip( baseRelationShip_ )
-
   {
     _cardinality = ONE_TO_N;
-    mapRelations = new std::map< EntityGid,
-      std::map< EntityGid, RelationshipAggregatedOneToNProperties >*>( );
-    mapBase = new std::map< EntityGid,
-      std::map< EntityGid, RelationshipBasesAggregatedOneToN >*>( );
+  }
 
+  RelationshipOneToOne*
+  RelationshipAggregatedOneToN::hierarchyRelationShip( ) const
+  {
+    return _hierarchyRelationShip;
+  }
+
+  RelationshipOneToN*
+  RelationshipAggregatedOneToN::baseRelationShip( ) const
+  {
+    return _baseRelationShip;
+  }
+
+  AggregatedOneToNAggregatedRels&
+  RelationshipAggregatedOneToN::mapAggregatedRels( )
+  {
+    return _mapAggregatedRels;
   }
 } // namespace shift

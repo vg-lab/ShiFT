@@ -72,6 +72,17 @@ namespace shift
     SHIFT_API virtual RelationshipAggregatedOneToN* asAggregatedOneToN( void );
     const std::string& name( void ) const { return _name; }
 
+
+    SHIFT_API
+    static void relationBreak( RelationshipOneToN& relOneToNOrig,
+      RelationshipOneToN& relOneToNDest,
+      Entity* entityOrig,Entity* entityDest );
+
+    SHIFT_API
+    static void relationBreak( RelationshipOneToN& relOneToNOrig,
+      RelationshipOneToOne& relOneToOneDest,
+      Entity* entityOrig,Entity* entityDest );
+
     SHIFT_API
     static void Establish( RelationshipOneToN& relOneToN,
       RelationshipOneToOne& relOneToOne,
@@ -84,6 +95,12 @@ namespace shift
       RelationshipProperties* propertiesDest = nullptr );
 
     SHIFT_API
+    static void BreakAnAggregatedRelation(
+      RelationshipAggregatedOneToN& relAggregatedOneToNOrig,
+      RelationshipAggregatedOneToN& relAggregatedOneToNDest,
+      Entities& searchEntities, Entity* entityOrig, Entity* entityDest );
+
+    SHIFT_API
     static void EstablishAndAggregate(
       RelationshipAggregatedOneToN& relAggregatedOneToNOrig,
       RelationshipAggregatedOneToN& relAggregatedOneToNDest,
@@ -94,8 +111,8 @@ namespace shift
     SHIFT_API
     static void EstablishWithHierarchy(
       RelationshipOneToN& relOneToN, RelationshipOneToOne& relOneToOne,
-      RelationshipAggregatedOneToN& /*relAggregatedOneToNOrig*/,
-      RelationshipAggregatedOneToN& /*relAggregatedOneToNDest*/,
+      RelationshipAggregatedOneToN& relAggregatedOneToNOrig,
+      RelationshipAggregatedOneToN& relAggregatedOneToNDest,
       Entity* entityOrig, Entity* entityDest );
 
   protected:
@@ -132,11 +149,12 @@ namespace shift
   // } RelationshipOneToNDest;
   typedef std::pair< EntityGid, RelationshipProperties* >
   RelationshipOneToNDest;
+  typedef std::unordered_multimap< EntityGid, RelationshipProperties* >
+      RelationshipOneToNMapDest;
 
   class RelationshipOneToN
     : public Relationship
-    , public std::unordered_map< EntityGid,
-      std::unordered_multimap< EntityGid, RelationshipProperties* >>
+    , public std::unordered_map< EntityGid, RelationshipOneToNMapDest>
   {
   public:
     SHIFT_API RelationshipOneToN( const std::string& name );
@@ -146,8 +164,9 @@ namespace shift
 
   struct RelationshipAggregatedOneToNProperties
   {
-    std::vector< RelationshipProperties* >* basedProperties;
-    RelationshipProperties* relationshipAggregatedProperties;
+    std::shared_ptr< std::vector< RelationshipProperties* >> basedProperties;
+    std::shared_ptr< RelationshipProperties> relationshipAggregatedProperties;
+
     RelationshipAggregatedOneToNProperties(
       std::vector< RelationshipProperties* >* basedProperties_,
       RelationshipProperties* relationshipAggregatedProperties_)
@@ -155,21 +174,58 @@ namespace shift
      , relationshipAggregatedProperties( relationshipAggregatedProperties_ )
     {
     }
-  } ;
+
+    RelationshipAggregatedOneToNProperties(
+        std::shared_ptr< std::vector< RelationshipProperties* >> basedProperties_,
+        std::shared_ptr< RelationshipProperties > relationshipAggregatedProperties_)
+        : basedProperties( basedProperties_)
+        , relationshipAggregatedProperties( relationshipAggregatedProperties_ )
+    {
+    }
+    ~RelationshipAggregatedOneToNProperties( )
+    {
+    }
+    RelationshipAggregatedOneToNProperties( )
+    {
+    }
+
+  };
+
+
+  typedef std::pair< EntityGid,
+    RelationshipAggregatedOneToNProperties > AggregatedOneToNDependentProperty;
+  typedef std::vector< AggregatedOneToNDependentProperty >
+    AggregatedOneToNDependentProperties;
+  typedef std::unordered_map< EntityGid,
+    std::shared_ptr< AggregatedOneToNDependentProperties >>
+    AggregatedOneToNDependentRelations;
 
   struct RelationshipBasesAggregatedOneToN
   {
-    std::map< EntityGid, std::vector< std::pair< EntityGid,
-      RelationshipAggregatedOneToNProperties >>* >* aggregatedRelations;
+    std::shared_ptr< AggregatedOneToNDependentRelations > aggregatedRelations;
     RelationshipProperties* relationProperties;
-    RelationshipBasesAggregatedOneToN( std::map< EntityGid, std::vector
-      < std::pair< EntityGid, RelationshipAggregatedOneToNProperties >>* >* aggregatedRelations_,
-    RelationshipProperties* relationProperties_ )
-    : aggregatedRelations( aggregatedRelations_ )
-    , relationProperties( relationProperties_ )
+
+    RelationshipBasesAggregatedOneToN(
+      std::shared_ptr< AggregatedOneToNDependentRelations > aggregatedRelations_,
+      RelationshipProperties* relationProperties_ )
+    : aggregatedRelations( aggregatedRelations_ ),
+      relationProperties ( relationProperties_ )
     {
     }
+
+    ~RelationshipBasesAggregatedOneToN()
+    {}
   };
+  typedef std::unordered_map< EntityGid,
+    RelationshipAggregatedOneToNProperties > AggregatedOneToNAggregatedDests;
+  typedef std::unordered_map< EntityGid,
+    std::shared_ptr<  AggregatedOneToNAggregatedDests >>
+    AggregatedOneToNAggregatedRels;
+  typedef std::unordered_map< EntityGid, RelationshipBasesAggregatedOneToN >
+    AggregatedOneToNBaseDests;
+  typedef std::unordered_map< EntityGid,
+    std::shared_ptr< AggregatedOneToNBaseDests > > AggregatedOneToNBaseRels;
+
 
   class RelationshipAggregatedOneToN
     : public Relationship
@@ -179,22 +235,32 @@ namespace shift
      RelationshipProperties* baseProperties,
      RelationshipOneToOne* hierarchyRelationShip_,
      RelationshipOneToN* baseRelationShip );
-    SHIFT_API virtual RelationshipAggregatedOneToN* asAggregatedOneToN( void );
+
     SHIFT_API virtual void addBaseRelation( EntityGid entityOrig,
       EntityGid entityDest, EntityGid entityBaseOrig, EntityGid entityBaseDest,
       RelationshipProperties* relationshipOrigProperties );
-    SHIFT_API virtual bool removeDependentRelation( EntityGid /*entityToSearch*/,
-      EntityGid /*entityOrigRemove*/ );
-    SHIFT_API virtual bool removeDependentRelation( EntityGid /*entityToSearch*/,
-      EntityGid /*entityOrigRemove*/, EntityGid /*entityDestRemove*/ );
+    SHIFT_API virtual void removeDependentRelation(
+      EntityGid entityOrigRemove, EntityGid entityDestRemove );
 
-    std::map< EntityGid,
-      std::map< EntityGid, RelationshipAggregatedOneToNProperties >*>* mapRelations;
-    std::map< EntityGid,
-      std::map< EntityGid, RelationshipBasesAggregatedOneToN >*>* mapBase;
+    SHIFT_API virtual RelationshipAggregatedOneToN* asAggregatedOneToN( void );
+    SHIFT_API RelationshipOneToOne* hierarchyRelationShip( ) const;
+    SHIFT_API RelationshipOneToN* baseRelationShip( ) const;
+    SHIFT_API AggregatedOneToNAggregatedRels& mapAggregatedRels( );
+
+  private:
+    SHIFT_API static void updateAggregatedProperties(
+        RelationshipAggregatedOneToNProperties* aggregatedProperties );
+
+    //This map it's use in representation to search the aggregated
+    //relations between two entities
+    AggregatedOneToNAggregatedRels _mapAggregatedRels;
+    //This map allows a search of the dependent aggregated relations of
+    //relation allowing their quicker erase and modification
+    AggregatedOneToNBaseRels _mapBaseRels;
     RelationshipProperties* _baseProperties;
     RelationshipOneToOne* _hierarchyRelationShip;
     RelationshipOneToN* _baseRelationShip;
+
   };
 
     class RelationshipNToN

@@ -85,7 +85,12 @@ namespace shift
     Entities* compareEntities, const bool removeIfContained,
     const bool removeContainedRelatives )
   {
-    const auto &relatives = relation[ entity->entityGid( ) ];
+    auto relativesIt = relation.find( entity->entityGid( ));
+    if(relativesIt == relation.end( ))
+    {
+      return;
+    }
+    const auto& relatives = relativesIt->second;
     depthLevel--;
     for ( const auto& relative : relatives )
     {
@@ -115,31 +120,37 @@ namespace shift
     Entities* compareEntities, const bool removeIfContained,
     const bool removeContainedRelatives )
   {
-    for ( auto parent = relation[ entity->entityGid( ) ].entity;
-          parent != 0; depthLevel-- )
+    auto parentIt = relation.find( entity->entityGid( ));
+    while ( parentIt != relation.end( ))
     {
-      Entity* relatedEntity = searchEntities.at( parent );
-      bool contained = compareEntities != nullptr && ( ( removeIfContained )
-        ? compareEntities->removeIfContains( relatedEntity )
-        : compareEntities->contains( relatedEntity ));
-
-      if ( contained )
+      auto parentGid = parentIt->second.entity;
+      if ( parentGid == 0 )
       {
+        return;
+      }
+      Entity* relatedEntity = searchEntities.at( parentGid );
+
+      if( compareEntities != nullptr && (( removeIfContained )
+        ? compareEntities->removeIfContains( relatedEntity )
+        : compareEntities->contains( relatedEntity )))
+      {
+        //The entity it's contained
         if ( removeContainedRelatives && compareEntities )
         {
-          compareEntities->removeRelatedEntitiesOneToOne( relation, entity,
-            searchEntities, depthLevel );
+          compareEntities->removeRelatedEntitiesOneToOne( relation,
+           relatedEntity, searchEntities, depthLevel );
         }
         return;
       }
-      else if ( addIfNotContains( relatedEntity ) && depthLevel != 1 )
+      else if( addIfNotContains( relatedEntity ) && depthLevel != 1 )
       {
-        parent = relation[ parent ].entity;
+        parentIt = relation.find( parentGid );
       }
       else
       {
         return;
       }
+      depthLevel--;
     }
   }
 
@@ -164,7 +175,7 @@ namespace shift
     const Entity* entity, const Entities& searchEntities, int depthLevel)
   {
     for ( auto parent = relation[ entity->entityGid( ) ].entity;
-          parent != 0; depthLevel-- )
+          parent != 0; --depthLevel )
     {
       Entity* relatedEntity = searchEntities.at( parent );
       if ( removeIfContains( relatedEntity ) && depthLevel != 1 )
@@ -176,5 +187,10 @@ namespace shift
         return;
       }
     }
+  }
+
+  bool Entities::empty( void ) const
+  {
+    return vector( ).empty( );
   }
 }
