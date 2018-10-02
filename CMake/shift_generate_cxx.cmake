@@ -20,12 +20,16 @@ function( shift_generate_cxx
     __NAME__
     __OBJS__ )
 
-  set( __OUTPUT_FILES__ ${__OUTPUT_FILES__} ${__NAME__}.h )
+  if ( ${__OBJ_TYPE__} STREQUAL "Relationship" )
+    set( __OUTPUT_FILES__ ${__OUTPUT_FILES__} ${__NAME__}.h ${__NAME__}.cpp )
+    set_property( SOURCE ${__NAME__}.cpp PROPERTY SKIP_AUTOGEN ON )
+  endif( )
+
   foreach( __OBJ__ ${__OBJS__} )
     set( __OUTPUT_FILES__ ${__OUTPUT_FILES__}
       ${__OUT_DIR__}/shift_${__OBJ__}.cpp
       ${__OUT_DIR__}/shift_${__OBJ__}.h )
-    set_property(SOURCE ${__OUT_DIR__}/shift_${__OBJ__}.cpp PROPERTY SKIP_AUTOGEN ON)
+    set_property( SOURCE ${__OUT_DIR__}/shift_${__OBJ__}.cpp PROPERTY SKIP_AUTOGEN ON )
   endforeach( )
 
   set( __NAME__ ${__NAME__}.h)
