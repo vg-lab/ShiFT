@@ -40,6 +40,11 @@ namespace shift
   {
   public:
 
+    typedef enum { EDITABLE, UNIQUE } TPropertyFlag;
+    typedef std::unordered_map< std::string,
+      std::set< shift::Entity::TPropertyFlag >> TPropertiesFlagsMap;
+    typedef enum { SUM, MEAN, MIN, MAX, COUNT } TAutoUpdatePropertyOp;
+
     SHIFT_API
     Entity( void );
 
@@ -70,19 +75,12 @@ namespace shift
       return typeid( *this ) == typeid( *entity );
     }
 
-    typedef enum { EDITABLE, UNIQUE } TPropertyFlag;
-    typedef std::unordered_map< std::string,
-                                std::set< shift::Entity::TPropertyFlag >>
-    TPropertiesFlagsMap;
-
     SHIFT_API
     virtual bool hasPropertyFlag( const std::string& /* propertyLabel */,
                                   TPropertyFlag /* flag */ ) const
     {
       return false;
-
     }
-    typedef enum { SUM, MEAN, MIN, MAX, COUNT } TAutoUpdatePropertyOp;
 
     virtual void autoUpdateProperty( fires::Object* /* obj */,
                                      const std::string& /* propertyLabel */ ) {};
@@ -95,9 +93,9 @@ namespace shift
       const std::string& destPropertyLabel );
 
     virtual void setRelatedDependencies( const std::string& /* relName */,
-      shift::Entity* /* dependency */ ) {}
+      shift::Entity* /* dependency */ ) { }
     virtual void removeRelatedDependencies( const std::string& /* relName */,
-      shift::Entity* /* dependency */ ) {}
+      shift::Entity* /* dependency */ ) { }
 
   protected:
     EntityGid _entityGid;

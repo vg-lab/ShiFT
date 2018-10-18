@@ -79,7 +79,6 @@ namespace shift
     switch ( op )
     {
     case TAutoUpdatePropertyOp::SUM:
-      aggType = fires::PropertyAggregator::SUM;
       break;
     case TAutoUpdatePropertyOp::MEAN:
       aggType = fires::PropertyAggregator::MEAN;
@@ -99,7 +98,7 @@ namespace shift
     aggregate.eval( objs, aggregateConfig );
     assert( objs.size( ) == 1 );
     this->setProperty( destPropertyLabel,
-                       objs[0]->getProperty( origPropertyLabel ));
+      objs.front( )->getProperty( origPropertyLabel ));
   }
 
 }

@@ -2,6 +2,7 @@
  * Copyright (c) 2014-2016 GMRV/URJC/UPM.
  *
  * Authors: Pablo Toharia <pablo.toharia@upm.es>
+ *          Iago Calvo Lista <i.calvol@alumnos.urjc.es>
  *
  * This file is part of ShiFT
  *
@@ -24,6 +25,7 @@
 
 #include "Entities.h"
 #include "Entity.h"
+#include "RelationshipProperties.h"
 #include "Properties.h"
 #include <shift/api.h>
 #include <unordered_set>
@@ -33,20 +35,6 @@
 
 namespace shift
 {
-  class Entity;
-  class Entities;
-
-  class RelationshipProperties
-    : public Properties
-  {
-  public:
-    RelationshipProperties( void ) {}
-    SHIFT_API virtual RelationshipProperties* create( void ) const
-    { return nullptr; }
-    virtual ~RelationshipProperties( void ) {}
-  };
-
-
   class RelationshipOneToOne;
   class RelationshipOneToN;
   class RelationshipNToN;
@@ -71,7 +59,6 @@ namespace shift
     SHIFT_API virtual RelationshipNToN* asNToN( void );
     SHIFT_API virtual RelationshipAggregatedOneToN* asAggregatedOneToN( void );
     const std::string& name( void ) const { return _name; }
-
 
     SHIFT_API
     static void relationBreak( RelationshipOneToN& relOneToNOrig,
@@ -106,7 +93,8 @@ namespace shift
       RelationshipAggregatedOneToN& relAggregatedOneToNDest,
       Entities& searchEntities, Entity* entityOrig,
       Entity* entityDest, RelationshipProperties* propertiesOrig = nullptr,
-      RelationshipProperties* propertiesDest = nullptr );
+      RelationshipProperties* propertiesDest = nullptr,
+      bool recalcProperties = true );
 
     SHIFT_API
     static void EstablishWithHierarchy(
@@ -122,9 +110,10 @@ namespace shift
     SHIFT_API
     static void Establish( RelationshipAggregatedOneToN &relOneToNOrig,
       RelationshipAggregatedOneToN &relOneToNDest, Entity* entityOrig,
-      Entity* entityDest, Entity* entityBaseOrig,
-      Entity* entityBaseDest, RelationshipProperties* propertiesOrig = nullptr,
-      RelationshipProperties* propertiesDest  = nullptr );
+      Entity* entityDest, Entity* entityBaseOrig,  Entity* entityBaseDest,
+      RelationshipProperties* propertiesOrig = nullptr,
+      RelationshipProperties* propertiesDest  = nullptr,
+      bool recalcProperties = true );
   };
 
   typedef struct
@@ -159,14 +148,18 @@ namespace shift
   public:
     SHIFT_API RelationshipOneToN( const std::string& name );
     SHIFT_API virtual RelationshipOneToN* asOneToN( void );
+    SHIFT_API RelationshipProperties* getRelationProperties(
+      EntityGid entityOrig, EntityGid entityDest );
 
   };
 
   struct RelationshipAggregatedOneToNProperties
   {
     std::shared_ptr< std::vector< RelationshipProperties* >> basedProperties;
-    std::shared_ptr< RelationshipProperties> relationshipAggregatedProperties;
-
+    std::shared_ptr< RelationshipProperties > relationshipAggregatedProperties;
+    RelationshipAggregatedOneToNProperties( )
+    {
+    }
     RelationshipAggregatedOneToNProperties(
       std::vector< RelationshipProperties* >* basedProperties_,
       RelationshipProperties* relationshipAggregatedProperties_)
@@ -183,9 +176,6 @@ namespace shift
     {
     }
     ~RelationshipAggregatedOneToNProperties( )
-    {
-    }
-    RelationshipAggregatedOneToNProperties( )
     {
     }
 
@@ -213,8 +203,9 @@ namespace shift
     {
     }
 
-    ~RelationshipBasesAggregatedOneToN()
-    {}
+    ~RelationshipBasesAggregatedOneToN( )
+    {
+    }
   };
   typedef std::unordered_map< EntityGid,
     RelationshipAggregatedOneToNProperties > AggregatedOneToNAggregatedDests;
@@ -232,13 +223,16 @@ namespace shift
   {
   public:
     SHIFT_API RelationshipAggregatedOneToN( const std::string& name,
-     RelationshipProperties* baseProperties,
+     RelationshipProperties* baseAggregatedProperties_,
      RelationshipOneToOne* hierarchyRelationShip_,
      RelationshipOneToN* baseRelationShip );
 
     SHIFT_API virtual void addBaseRelation( EntityGid entityOrig,
       EntityGid entityDest, EntityGid entityBaseOrig, EntityGid entityBaseDest,
-      RelationshipProperties* relationshipOrigProperties );
+      RelationshipProperties* relationshipOrigProperties,
+      bool recalcProperties = true,
+      const std::string& entityOrigName = "",
+      const std::string& entityDestName="" );
     SHIFT_API virtual void removeDependentRelation(
       EntityGid entityOrigRemove, EntityGid entityDestRemove );
 
@@ -246,10 +240,12 @@ namespace shift
     SHIFT_API RelationshipOneToOne* hierarchyRelationShip( ) const;
     SHIFT_API RelationshipOneToN* baseRelationShip( ) const;
     SHIFT_API AggregatedOneToNAggregatedRels& mapAggregatedRels( );
+    SHIFT_API void updateDependentRelations(EntityGid origGid,
+      EntityGid destGid );
+    SHIFT_API RelationshipProperties* getRelationProperties(
+      EntityGid entityOrig, EntityGid entityDest );
 
   private:
-    SHIFT_API static void updateAggregatedProperties(
-        RelationshipAggregatedOneToNProperties* aggregatedProperties );
 
     //This map it's use in representation to search the aggregated
     //relations between two entities
@@ -257,7 +253,7 @@ namespace shift
     //This map allows a search of the dependent aggregated relations of
     //relation allowing their quicker erase and modification
     AggregatedOneToNBaseRels _mapBaseRels;
-    RelationshipProperties* _baseProperties;
+    RelationshipProperties* _baseAggregatedProperties;
     RelationshipOneToOne* _hierarchyRelationShip;
     RelationshipOneToN* _baseRelationShip;
 

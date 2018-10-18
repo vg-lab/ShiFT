@@ -121,8 +121,15 @@ def print_header( objectType, ents, ent, file ):
         body += "    virtual void createSubEntities(\n" + \
                 "      std::vector< shift::Entity* >& subEntities ) const override;\n"
 
+    # create method for relationships declaration
     if objectType == "Relationship" :
         body += "    virtual shift::RelationshipProperties* create( void ) const override;\n"
+
+    # relationName method for relationships declaration
+    if objectType == "Relationship":
+        body += "    const std::string& relationName( void ) const final {" \
+               " return _entityName; }\n"
+
     # issubentity method declaration and definition
     if objectType == "Entity" and "subentity" in ent[ "flags" ] :
         body += "    inline virtual bool isSubEntity( void ) final { return true; }\n"
@@ -132,11 +139,11 @@ def print_header( objectType, ents, ent, file ):
             "      const std::string& propertyName ) const final;\n"
 
     # autoUpdateProperties method declaration
-    if objectType == "Entity" :
+    if objectType == "Entity" or objectType == "Relationship":
         body += "    void autoUpdateProperties( void ) final;\n";
 
     # autoUpdateProperty method declaration
-    if objectType == "Entity" :
+    if objectType == "Entity" or objectType == "Relationship":
         body += "    void autoUpdateProperty( fires::Object* /* obj */,\n" + \
                 "                             const std::string& /* propertyLabel */ ) final;\n";
 
@@ -149,6 +156,13 @@ def print_header( objectType, ents, ent, file ):
         body += "    void removeRelatedDependencies( const std::string& relName,\n" \
                 "                                 shift::Entity* dependency ) final;\n"
 
+    # set related dependencies method declaration
+    if objectType == "Relationship" :
+        body += "    void setRelatedDependencies( shift::RelationshipProperties* dependency ) final;\n"
+
+    # remove related dependencies method declaration
+    if objectType == "Relationship" :
+        body += "    void removeRelatedDependencies( shift::RelationshipProperties* dependency ) final;\n"
 
     # propertyFlags method declaration and definition
     if objectType == "Entity" :
@@ -161,6 +175,18 @@ def print_header( objectType, ents, ent, file ):
         # propertyFlags static map
         body += "  protected:\n" + \
                 "    static shift::Entity::TPropertiesFlagsMap _propertyFlags;\n"
+
+    # propertyFlags method declaration and definition
+    if objectType == "Relationship" :
+        body += "    inline virtual bool hasPropertyFlag( const std::string& propertyLabel,\n" + \
+                "                                         shift::RelationshipProperties::TPropertyFlag flag ) const final\n" + \
+                "    {\n" + \
+                "      return ( " + ent[ "name"] + "::_propertyFlags[ propertyLabel ].count( flag ) > 0 );\n" + \
+                "    }\n\n"
+
+        # propertyFlags static map
+        body += "  protected:\n" + \
+                "    static shift::RelationshipProperties::TPropertiesFlagsMap _propertyFlags;\n"
 
     # end of class
     body += "  };\n"
@@ -197,7 +223,7 @@ def print_impl( objectType, ents, ent, file ):
     body += "  const std::string " + ent[ "name" ] + \
             "::_entityName = \"" + ent[ "name" ] + "\";\n\n"
 
-    # property flags map initialization
+    # property flags map initialization for entities
     if objectType == "Entity" :
         body += "  shift::Entity::TPropertiesFlagsMap " + ent[ "name" ] + "::_propertyFlags =\n" + \
                 "  {\n"
@@ -207,6 +233,26 @@ def print_impl( objectType, ents, ent, file ):
             if "flags" in prop :
                 for flag in prop[ "flags" ] :
                     body += "       shift::Entity::TPropertyFlag::" + flag;
+                    if prop[ "flags"].index( flag ) != len( prop[ "flags"] ) - 1 :
+                        body += ","
+                    body += "\n"
+            body += "    }\n"
+            body += "  }"
+            if ent[ "properties"].index( prop ) != len( ent[ "properties" ] ) - 1 :
+                body += ","
+            body += "\n"
+        body += "  };\n\n"
+
+        # property flags map initialization for relationships
+    if objectType == "Relationship" :
+        body += "  shift::RelationshipProperties::TPropertiesFlagsMap " + ent[ "name" ] + "::_propertyFlags =\n" + \
+                "  {\n"
+
+        for prop in ent[ "properties" ] :
+            body += "  { \"" + prop[ "name" ] + "\",\n    {\n"
+            if "flags" in prop :
+                for flag in prop[ "flags" ] :
+                    body += "       shift::RelationshipProperties::TPropertyFlag::" + flag;
                     if prop[ "flags"].index( flag ) != len( prop[ "flags"] ) - 1 :
                         body += ","
                     body += "\n"
@@ -348,6 +394,7 @@ def print_impl( objectType, ents, ent, file ):
         #     body += "subentities.reserve( subentities.size( ) + " + \
         #             str( nbEntitiesCreated ) + " );\n"
 
+    #create method definition for Relationships
     if objectType == "Relationship" :
         body += "  shift::RelationshipProperties* " + ent[ "name" ] + "::create( void ) const\n"
         body += "  {\n"
@@ -381,7 +428,7 @@ def print_impl( objectType, ents, ent, file ):
     body += "  }\n"
 
     # autoUpdateProperties method definition
-    if objectType == "Entity" :
+    if objectType == "Entity" or objectType == "Relationship":
         body += "  void " + ent[ "name" ] + "::autoUpdateProperties( )\n" + \
                 "  {\n"
         for prop in ent[ "properties" ] :
@@ -394,9 +441,8 @@ def print_impl( objectType, ents, ent, file ):
                     body +=  "    this->autoUpdateProperty(nullptr, \"" + prop[ "name" ]+"\" );\n"
         body += "  }\n"
 
-
-    # autoUpdateProperty method definition
-    if objectType == "Entity" :
+    # autoUpdateProperty method definition for entities
+    if objectType == "Entity":
         body += "  void " + ent[ "name" ] + "::autoUpdateProperty(\n" + \
                 "    fires::Object* /* obj */,\n" + \
                 "    const std::string& propertyLabel )\n" + \
@@ -433,7 +479,7 @@ def print_impl( objectType, ents, ent, file ):
 
         body += "  }\n"
 
-    # set related dependencies method definition
+    # set related dependencies method definition for entities
     if objectType == "Entity" :
         body += "  void " + ent[ "name" ] + "::setRelatedDependencies(\n" \
                 "    const std::string& relName,\n" \
@@ -466,7 +512,7 @@ def print_impl( objectType, ents, ent, file ):
 
         body += "    }\n"
 
-    # remove related dependencies method definition
+    # remove related dependencies method definition for entities
     if objectType == "Entity" :
         body += "  void " + ent[ "name" ] + "::removeRelatedDependencies(\n" \
                "    const std::string& relName,\n" \
@@ -480,6 +526,104 @@ def print_impl( objectType, ents, ent, file ):
                 auto = prop[ "auto" ]
                 relEntComp = [ "dependency->entityName( ) == \"" + s + "\""  for s in auto[ "source" ][ "entities" ]]
                 body += "    if ( relName == \"" + auto[ "source" ][ "relName" ] +"\" &&\n" + \
+                        "        ( "
+                body += ' ||\n          '.join( str( relEnt ) for relEnt in relEntComp )
+                body += " ))\n" + \
+                        "    {\n"
+                body += "      fires::DependenciesManager::removeDependency(\n" + \
+                        "        this, \"" + \
+                        prop[ "name" ] + "\", dependency, \"" + \
+                        auto[ "source" ][ "property" ] + "\" );\n" + \
+                        "      fires::DependenciesManager::setDependentsDirty(\n" \
+                        "        this, \"" + prop[ "name" ] + "\", true );\n"
+
+
+                body += "    }\n"
+
+        body += "    }\n"
+
+    # autoUpdateProperty method definition for Relationship
+    if objectType == "Relationship":
+        body += "  void " + ent[ "name" ] + "::autoUpdateProperty(\n" + \
+                "    fires::Object* /* obj */,\n" + \
+                "    const std::string& propertyLabel )\n" + \
+                "  {\n" \
+                "    ( void ) propertyLabel;\n"
+        for prop in ent[ "properties" ] :
+            if "auto" in prop :
+                auto = prop[ "auto" ]
+                if ( auto[ "op" ] == "SUM" or auto[ "op" ] == "MEAN" or \
+                     auto[ "op" ] == "MAX" or auto[ "op" ] == "MIN" or \
+                     auto[ "op" ] == "COUNT" ) and \
+                     "source" in auto and "entities" in auto[ "source" ]:
+                    body +=  "    if ( propertyLabel == \"" + prop[ "name" ] + "\" )\n"
+                    body += \
+                    "      this->autoUpdatePropertyWithRelatedRelations(" + \
+                    "\n{ ";
+                    body += ', '.join( '"' + str( el ) + '"' for el in auto[ "source" ][ "entities" ] )
+                    # for ent in auto[ "entities" ] :
+                    #     body += ent + ","
+                    if auto[ "op" ] == "SUM" : op = "TAutoUpdatePropertyOp::SUM"
+                    elif auto[ "op" ] == "MEAN" : op = "TAutoUpdatePropertyOp::MEAN"
+                    elif auto[ "op" ] == "MAX" : op = "TAutoUpdatePropertyOp::MAX"
+                    elif auto[ "op" ] == "MIN" : op = "TAutoUpdatePropertyOp::MIN"
+                    elif auto[ "op" ] == "COUNT" : op = "TAutoUpdatePropertyOp::COUNT"
+                    if "property" in auto[ "source" ] :
+                        origPropName = auto[ "source" ][ "property" ]
+                    else :
+                        origPropName = ""
+                    body += " }" +\
+                    ",\n        " + op +", \"" + \
+                    origPropName  + "\", \"" + \
+                    prop[ "name" ] + "\" );\n"
+
+        body += "  }\n"
+
+    # set related dependencies method definition for relationships
+    if objectType == "Relationship" :
+        body += "  void " + ent[ "name" ] + "::setRelatedDependencies(\n" \
+                "    shift::RelationshipProperties* dependency )\n" \
+                "  {\n    ( void ) dependency;\n"
+        for prop in ent[ "properties" ] :
+            if "auto" in prop and \
+               "source" in prop[ "auto" ] and \
+               "entities" in prop[ "auto" ][ "source" ] and \
+               "property" in prop[ "auto" ][ "source" ] :
+                auto = prop[ "auto" ]
+                relEntComp = [ "dependency->relationName( ) == \"" + s + "\""  for s in auto[ "source" ][ "entities" ]]
+                body += "    if ( \n" + \
+                        "        ( "
+                body += ' ||\n          '.join( str( relEnt ) for relEnt in relEntComp )
+                body += " ))\n" + \
+                        "    {\n"
+                body += "      fires::DependenciesManager::addDependency(\n" + \
+                        "        this, \"" + \
+                        prop[ "name" ] + "\", dependency, \"" + \
+                        auto[ "source" ][ "property" ] + "\" );\n" + \
+                        "      fires::DependenciesManager::setUpdater(\n" + \
+                        "        this, \"" + prop[ "name" ] + "\", " \
+                        " this, &" + ent[ "name" ] + "::autoUpdateProperty );\n" \
+                        "      fires::DependenciesManager::setDependentsDirty(\n" \
+                        "        this, \"" + prop[ "name" ] + "\", true );\n"
+
+
+                body += "    }\n"
+
+        body += "    }\n"
+
+    # remove related dependencies method definition for relationships
+    if objectType == "Relationship" :
+        body += "  void " + ent[ "name" ] + "::removeRelatedDependencies(\n" \
+                "    shift::RelationshipProperties* dependency )\n" \
+                "  {\n    ( void ) dependency;\n"
+        for prop in ent[ "properties" ] :
+            if "auto" in prop and \
+               "source" in prop[ "auto" ] and \
+               "entities" in prop[ "auto" ][ "source" ] and \
+               "property" in prop[ "auto" ][ "source" ] :
+                auto = prop[ "auto" ]
+                relEntComp = [ "dependency->relationName( ) == \"" + s + "\""  for s in auto[ "source" ][ "entities" ]]
+                body += "    if ( \n" + \
                         "        ( "
                 body += ' ||\n          '.join( str( relEnt ) for relEnt in relEntComp )
                 body += " ))\n" + \

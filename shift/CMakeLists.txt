@@ -7,6 +7,7 @@ set( SHIFT_PUBLIC_HEADERS
   Entities.h
   EntitiesTypes.h
   Relationship.h
+  RelationshipProperties.h
   RelationshipPropertiesTypes.h
   Representation.h
   RepresentationCreator.h
@@ -21,8 +22,9 @@ set( SHIFT_SOURCES
   Entities.cpp
   Entity.cpp
   Relationship.cpp
-  Representation.cpp
+  RelationshipProperties.cpp
   RelationshipPropertiesTypes.cpp
+  Representation.cpp
   ViewGraph.cpp
   )
 
