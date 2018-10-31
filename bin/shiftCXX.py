@@ -134,6 +134,10 @@ def print_header( objectType, ents, ent, file ):
     if objectType == "Entity" and "subentity" in ent[ "flags" ] :
         body += "    inline virtual bool isSubEntity( void ) final { return true; }\n"
 
+    # issubentity method declaration and definition
+    if objectType == "Entity" and "input" in ent[ "flags" ] :
+        body += "    inline virtual bool isInput( void ) final { return true; }\n"
+
     body += "    virtual bool evalConstraint(\n" +\
             "      const shift::Properties::PropertyConstraintType& constraintType,\n" + \
             "      const std::string& propertyName ) const final;\n"
@@ -704,13 +708,18 @@ def main( argv ) :
                     domainContent += "    this->_entitiesTypes.push_back( std::make_tuple( \""  + \
                                      ent[ "name" ] + "\", new " + \
                                      ent[ "namespace" ] + "::" + ent[ "name" ] + ", " + \
-                                     str( "subentity" in ent[ "flags" ] ).lower( ) + " ));\n"
+                                     str( "subentity" in ent[ "flags" ] ).lower( ) + ", " + \
+                                     str( "input" in ent[ "flags" ] ).lower( ) + " ));\n"
+                    if "input" in ent[ "flags" ] :
+                        domainContent += "    this->_inputsTypes.push_back( std::make_tuple( \""  + \
+                                         ent[ "name" ] + "\", new " + \
+                                         ent[ "namespace" ] + "::" + ent[ "name" ] + ", " + \
+                                         str( "subentity" in ent[ "flags" ] ).lower( ) + ", " + \
+                                         str( "input" in ent[ "flags" ] ).lower( ) + " ));\n"
             domainContent += "  }\n" \
-
-            domainContent += "  virtual ~EntitiesTypes( void )\n" \
-                             "  {}\n"
-
-            domainContent += "};\n"
+                             "  virtual ~EntitiesTypes( void )\n" \
+                             "  {}\n" \
+                             "};\n"
 
         if objectType == "Relationship" :
 

@@ -35,23 +35,27 @@ namespace shift
   class EntitiesTypes
   {
   public:
-    enum  { ENTITY_NAME = 0, OBJECT =1, IS_SUBENTITY };
-    typedef std::vector< std::tuple< std::string, Entity*, bool >> TEntitiesTypes;
+    enum  { ENTITY_NAME = 0, OBJECT = 1, IS_SUBENTITY = 2, IS_INPUT = 3 };
+    typedef std::vector< std::tuple< std::string, Entity*, bool, bool >> TEntitiesTypes;
 
     virtual ~EntitiesTypes( void ) {}
     const TEntitiesTypes& entitiesTypes( void ) const { return _entitiesTypes; };
+    const TEntitiesTypes& inputsTypes( void ) const { return _entitiesTypes; };
 
 	Entity* getEntityObject( std::string entityTypeName ){
-	for(auto entityTuple : _entitiesTypes ){
-		  if ( entityTypeName ==  std::get<EntitiesTypes::ENTITY_NAME>( entityTuple )){
-			  return std::get<EntitiesTypes::OBJECT>( entityTuple );
-		  }
-	  }
+	for(auto entityTuple : _entitiesTypes )
+	{
+		if ( entityTypeName ==  std::get<EntitiesTypes::ENTITY_NAME>( entityTuple ))
+		{
+			return std::get<EntitiesTypes::OBJECT>( entityTuple );
+		}
+	}
 	  SHIFT_THROW("Entity type not recognised");
   }
 
   protected:
     TEntitiesTypes _entitiesTypes;
+    TEntitiesTypes _inputsTypes;
 
   };
 

@@ -15,10 +15,10 @@ namespace shift
 
   void Entities::add( Entity* entity )
   {
-
-    SHIFT_CHECK_THROW( _map.find( entity->entityGid( )) == _map.end( ),
+    auto entityGid = entity->entityGid( );
+    SHIFT_CHECK_THROW( _map.find( entityGid ) == _map.end( ),
       "ERROR: element already in map" );
-    _map.insert( std::make_pair( entity->entityGid( ),entity ));
+    _map.insert( std::make_pair( entityGid, entity ));
     _vector.push_back( entity );
     SHIFT_CHECK_THROW( _vector.size( ) == _map.size( ),
       "ERROR: size incoherence between map and vector" );
@@ -40,10 +40,11 @@ namespace shift
 
   bool  Entities::addIfNotContains( Entity* entity )
   {
-    auto mapIt = _map.find( entity->entityGid( ));
+    auto entityGid = entity->entityGid( );
+    auto mapIt = _map.find( entityGid );
     if ( mapIt == _map.end( ))
     {
-      _map.insert( std::make_pair( entity->entityGid( ),entity ));
+      _map.insert( std::make_pair( entityGid, entity ));
       _vector.push_back( entity );
       SHIFT_CHECK_THROW( _vector.size( ) == _map.size( ),
         "ERROR: size incoherence between map and vector" );
@@ -192,5 +193,41 @@ namespace shift
   bool Entities::empty( void ) const
   {
     return vector( ).empty( );
+  }
+
+  void Entities::addEntities( const Entities& entities )
+  {
+    for ( const auto entity : entities.vector( ))
+    {
+      auto entityGid = entity->entityGid( );
+      SHIFT_CHECK_THROW( _map.find( entityGid ) == _map.end( ),
+        "ERROR: element already in map" );
+      _map.insert( std::make_pair( entityGid, entity ));
+      _vector.push_back( entity );
+    }
+    SHIFT_CHECK_THROW( _vector.size( ) == _map.size( ),
+      "ERROR: size incoherence between map and vector" );
+  }
+
+  bool Entities::addEntitiesIfNotContains( const Entities& entities )
+  {
+    bool returnValue = true;
+    for ( const auto entity : entities.vector( ))
+    {
+      auto entityGid = entity->entityGid( );
+      auto mapIt = _map.find( entityGid );
+      if( mapIt == _map.end( ) )
+      {
+        _map.insert( std::make_pair( entityGid, entity ) );
+        _vector.push_back( entity );
+      }
+      else
+      {
+        returnValue = false;
+      }
+    }
+    SHIFT_CHECK_THROW( _vector.size( ) == _map.size( ),
+      "ERROR: size incoherence between map and vector" );
+    return returnValue;
   }
 }

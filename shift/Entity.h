@@ -70,6 +70,9 @@ namespace shift
     virtual bool isSubEntity( void ) { return false; }
 
     SHIFT_API
+    virtual bool isInput( void ) { return false; }
+
+    SHIFT_API
     inline virtual bool isSameEntityType( const shift::Entity* entity ) const
     {
       return typeid( *this ) == typeid( *entity );
@@ -77,7 +80,7 @@ namespace shift
 
     SHIFT_API
     virtual bool hasPropertyFlag( const std::string& /* propertyLabel */,
-                                  TPropertyFlag /* flag */ ) const
+      TPropertyFlag /* flag */ ) const
     {
       return false;
     }

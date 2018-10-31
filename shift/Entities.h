@@ -50,10 +50,16 @@ namespace shift
     void add( Entity* entity );
 
     SHIFT_API
+    void addEntities( const Entities& entities );
+
+    SHIFT_API
     void remove( Entity* entity );
 
     SHIFT_API
     bool addIfNotContains( Entity* entity );
+
+    SHIFT_API
+    bool addEntitiesIfNotContains( const Entities& entities );
 
     SHIFT_API
     bool removeIfContains( Entity* entity );
