@@ -26,7 +26,6 @@
 #include "Relationship.h"
 #include "error.h"
 #include <shift/api.h>
-#include <assert.h>
 #include <unordered_map>
 #include <vector>
 
@@ -53,7 +52,7 @@ namespace shift
     void addEntities( const Entities& entities );
 
     SHIFT_API
-    void remove( Entity* entity );
+    void remove( const Entity* entity );
 
     SHIFT_API
     bool addIfNotContains( Entity* entity );
@@ -62,33 +61,33 @@ namespace shift
     bool addEntitiesIfNotContains( const Entities& entities );
 
     SHIFT_API
-    bool removeIfContains( Entity* entity );
+    bool removeIfContains( const Entity* entity );
 
     SHIFT_API
-    bool contains( Entity* entity ) const;
+    bool contains( const Entity* entity ) const;
 
     SHIFT_API
     bool empty( void ) const;
 
     SHIFT_API
-    void addRelatedEntitiesOneToN( RelationshipOneToN& relation,
+    void addRelatedEntitiesOneToN( const RelationshipOneToN& relation,
       const Entity* entity, const Entities& searchEntities, int depthLevel = 0,
       Entities* compareEntities = nullptr, bool removeIfContained = true,
       bool removeContainedRelatives = true );
 
     SHIFT_API
-    void addRelatedEntitiesOneToOne( RelationshipOneToOne& relation,
+    void addRelatedEntitiesOneToOne( const RelationshipOneToOne& relation,
       const Entity* entity, const Entities& searchEntities, int depthLevel = 0,
       Entities* compareEntities = nullptr, bool removeIfContained = true,
       bool removeContainedRelatives = true );
 
     SHIFT_API
-    void removeRelatedEntitiesOneToN( RelationshipOneToN& relation,
+    void removeRelatedEntitiesOneToN( const RelationshipOneToN& relation,
       const Entity* entity, const Entities& searchEntities,
       int depthLevel = 0 );
 
     SHIFT_API
-    void removeRelatedEntitiesOneToOne( RelationshipOneToOne& relation,
+    void removeRelatedEntitiesOneToOne( const RelationshipOneToOne& relation,
       const Entity* entity, const Entities& searchEntities,
       int depthLevel = 0 );
 
@@ -104,7 +103,7 @@ namespace shift
 
     size_t size( void ) const
     {
-      SHIFT_CHECK_THROW(_vector.size( ) == _map.size( ),
+      SHIFT_CHECK_THROW( _vector.size( ) == _map.size( ),
         "ERROR: size incoherence between map and vector" );
       return _map.size( );
     }

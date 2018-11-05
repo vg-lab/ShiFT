@@ -71,14 +71,14 @@ namespace shift
         aggType = fires::PropertyAggregator::MIN;
         break;
       default:
-        assert( false );
+        SHIFT_THROW( "Unknown aggregated operation type." );
     }
 
     aggregateConfig.addProperty( origPropertyLabel_, aggregator, aggType );
     aggregate.eval( objs, aggregateConfig );
-    assert( objs.size( ) == 1 );
+    //SHIFT_CHECK_THROW( objs.size( ) == 1, "Objects size must be 1." );
     this->setProperty( destPropertyLabel_,
-                       objs.front( )->getProperty( origPropertyLabel_ ) );
+      objs.front( )->getProperty( origPropertyLabel_ ));
 
   }
 

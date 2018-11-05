@@ -27,7 +27,6 @@
 #include "Properties.h"
 #include <shift/api.h>
 #include <vector>
-#include <assert.h>
 
 namespace shift
 {

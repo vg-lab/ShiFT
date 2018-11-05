@@ -70,7 +70,7 @@ namespace shift
     virtual bool isSubEntity( void ) { return false; }
 
     SHIFT_API
-    virtual bool isInput( void ) { return false; }
+    virtual bool isNotHierarchy( void ) { return false; }
 
     SHIFT_API
     inline virtual bool isSameEntityType( const shift::Entity* entity ) const

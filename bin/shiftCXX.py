@@ -135,8 +135,8 @@ def print_header( objectType, ents, ent, file ):
         body += "    inline virtual bool isSubEntity( void ) final { return true; }\n"
 
     # issubentity method declaration and definition
-    if objectType == "Entity" and "input" in ent[ "flags" ] :
-        body += "    inline virtual bool isInput( void ) final { return true; }\n"
+    if objectType == "Entity" and "noHierarchy" in ent[ "flags" ] :
+        body += "    inline virtual bool isNotHierarchy( void ) final { return true; }\n"
 
     body += "    virtual bool evalConstraint(\n" +\
             "      const shift::Properties::PropertyConstraintType& constraintType,\n" + \
@@ -709,13 +709,13 @@ def main( argv ) :
                                      ent[ "name" ] + "\", new " + \
                                      ent[ "namespace" ] + "::" + ent[ "name" ] + ", " + \
                                      str( "subentity" in ent[ "flags" ] ).lower( ) + ", " + \
-                                     str( "input" in ent[ "flags" ] ).lower( ) + " ));\n"
-                    if "input" in ent[ "flags" ] :
-                        domainContent += "    this->_inputsTypes.push_back( std::make_tuple( \""  + \
+                                     str( "noHierarchy" in ent[ "flags" ] ).lower( ) + " ));\n"
+                    if "noHierarchy" in ent[ "flags" ] :
+                        domainContent += "    this->_notHierarchyTypes.push_back( std::make_tuple( \""  + \
                                          ent[ "name" ] + "\", new " + \
                                          ent[ "namespace" ] + "::" + ent[ "name" ] + ", " + \
                                          str( "subentity" in ent[ "flags" ] ).lower( ) + ", " + \
-                                         str( "input" in ent[ "flags" ] ).lower( ) + " ));\n"
+                                         str( "noHierarchy" in ent[ "flags" ] ).lower( ) + " ));\n"
             domainContent += "  }\n" \
                              "  virtual ~EntitiesTypes( void )\n" \
                              "  {}\n" \

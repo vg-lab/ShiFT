@@ -31,7 +31,6 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <vector>
-#include <assert.h>
 
 namespace shift
 {
@@ -175,6 +174,7 @@ namespace shift
         , relationshipAggregatedProperties( relationshipAggregatedProperties_ )
     {
     }
+
     ~RelationshipAggregatedOneToNProperties( )
     {
     }
@@ -259,11 +259,11 @@ namespace shift
 
   };
 
-    class RelationshipNToN
-    : public Relationship
-    , public std::vector< std::tuple< std::unordered_set< EntityGid >,
-      std::unordered_set< EntityGid >, RelationshipProperties >>
-    {
+  class RelationshipNToN
+  : public Relationship
+  , public std::vector< std::tuple< std::unordered_set< EntityGid >,
+    std::unordered_set< EntityGid >, RelationshipProperties >>
+  {
   public:
     SHIFT_API RelationshipNToN( const std::string& name );
     SHIFT_API virtual RelationshipNToN* asNToN( void );

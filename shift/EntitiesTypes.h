@@ -35,12 +35,12 @@ namespace shift
   class EntitiesTypes
   {
   public:
-    enum  { ENTITY_NAME = 0, OBJECT = 1, IS_SUBENTITY = 2, IS_INPUT = 3 };
+    enum  { ENTITY_NAME = 0, OBJECT = 1, IS_SUBENTITY = 2, IS_NOT_HIERARCHY = 3 };
     typedef std::vector< std::tuple< std::string, Entity*, bool, bool >> TEntitiesTypes;
 
     virtual ~EntitiesTypes( void ) {}
     const TEntitiesTypes& entitiesTypes( void ) const { return _entitiesTypes; };
-    const TEntitiesTypes& inputsTypes( void ) const { return _entitiesTypes; };
+    const TEntitiesTypes& notHierarchyTypes( void ) const { return _notHierarchyTypes; };
 
 	Entity* getEntityObject( std::string entityTypeName ){
 	for(auto entityTuple : _entitiesTypes )
@@ -55,8 +55,7 @@ namespace shift
 
   protected:
     TEntitiesTypes _entitiesTypes;
-    TEntitiesTypes _inputsTypes;
-
+    TEntitiesTypes _notHierarchyTypes;
   };
 
 }
