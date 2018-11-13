@@ -75,7 +75,7 @@ namespace shift
 
   RelationshipProperties*
     RelationshipPropertiesTypes::getRelationshipProperties(
-    const std::string& relationshipName_ )
+    const std::string& relationshipName_ ) const
   {
     auto relPropIt = _relationshipPropertiesTypes.find( relationshipName_ );
     if( relPropIt != _relationshipPropertiesTypes.end( ))

@@ -2,6 +2,7 @@
  * Copyright (c) 2014-2016 GMRV/URJC/UPM.
  *
  * Authors: Pablo Toharia <pablo.toharia@upm.es>
+ *          Iago Calvo Lista <i.calvol@alumnos.urjc.es>
  *
  * This file is part of ShiFT
  *
@@ -24,14 +25,16 @@
 
 #include "Entity.h"
 #include "Relationship.h"
+#include "error.h"
 #include <shift/api.h>
-#include <assert.h>
 #include <unordered_map>
 #include <vector>
 
 namespace shift
 {
   class Entity;
+  class RelationshipOneToOne;
+  class RelationshipOneToN;
 
   class Entities
   {
@@ -46,6 +49,43 @@ namespace shift
     SHIFT_API
     void add( Entity* entity );
 
+    SHIFT_API
+    void remove( const Entity* entity );
+
+    SHIFT_API
+    bool addIfNotContains( Entity* entity );
+
+    SHIFT_API
+    bool removeIfContains( const Entity* entity );
+
+    SHIFT_API
+    bool contains( const Entity* entity ) const;
+
+    SHIFT_API
+    bool empty( void ) const;
+
+    SHIFT_API
+    void addRelatedEntitiesOneToN( const RelationshipOneToN& relation,
+      const Entity* entity, const Entities& searchEntities, int depthLevel = 0,
+      Entities* compareEntities = nullptr, bool removeIfContained = true,
+      bool removeContainedRelatives = true );
+
+    SHIFT_API
+    void addRelatedEntitiesOneToOne( const RelationshipOneToOne& relation,
+      const Entity* entity, const Entities& searchEntities, int depthLevel = 0,
+      Entities* compareEntities = nullptr, bool removeIfContained = true,
+      bool removeContainedRelatives = true );
+
+    SHIFT_API
+    void removeRelatedEntitiesOneToN( const RelationshipOneToN& relation,
+      const Entity* entity, const Entities& searchEntities,
+      int depthLevel = 0 );
+
+    SHIFT_API
+    void removeRelatedEntitiesOneToOne( const RelationshipOneToOne& relation,
+      const Entity* entity, const Entities& searchEntities,
+      int depthLevel = 0 );
+
     IndexedEntitiesValue& at( const IndexedEntitiesKey& idx )
     {
       return _map.at( idx );
@@ -58,7 +98,8 @@ namespace shift
 
     size_t size( void ) const
     {
-      assert( _vector.size( ) == _map.size( ));
+      //SHIFT_CHECK_THROW( _vector.size( ) == _map.size( ),
+      //  "ERROR: size incoherence between map and vector" );
       return _map.size( );
     }
 
@@ -86,7 +127,6 @@ namespace shift
   protected:
     IndexedEntities _map;
     VectorizedEntities _vector;
-
   };
 
   class Relationship;
@@ -95,10 +135,8 @@ namespace shift
     : public Entities
   {
   public:
-
-
     //! Relations are referenced by a name in a string
-    typedef std::unordered_map< std::string, Relationship* > TRelationshipMap ;
+    typedef std::unordered_map< std::string, Relationship* > TRelationshipMap;
     const TRelationshipMap& relationships( void ) const
     {
       return _relationships;
