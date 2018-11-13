@@ -63,7 +63,7 @@ namespace shift
       relationshipPropertiesTypes( void );
 
     SHIFT_API RelationshipProperties* getRelationshipProperties(
-      const std::string& relationshipName_ );
+      const std::string& relationshipName_ ) const;
 
   protected:
     TRelationshipPropertiesTypes _relationshipPropertiesTypes;

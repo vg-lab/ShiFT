@@ -1,2 +1,2 @@
 # -*- mode: cmake -*-
-git_subproject(FiReS https://github.com/gmrvvis/FiReS.git 4256b7d)
+git_subproject(FiReS https://github.com/gmrvvis/FiReS.git cdec41e)
