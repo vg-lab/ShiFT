@@ -96,7 +96,7 @@ namespace shift
     aggregateConfig.addProperty( origPropertyLabel, aggregator, aggType );
 
     aggregate.eval( objs, aggregateConfig );
-    SHIFT_CHECK_THROW( objs.size( ) == 1, "Objects size must be 1." );
+    //SHIFT_CHECK_THROW( objs.size( ) == 1, "Objects size must be 1." );
     this->setProperty( destPropertyLabel,
       objs.front( )->getProperty( origPropertyLabel ));
   }

@@ -134,7 +134,7 @@ def print_header( objectType, ents, ent, file ):
     if objectType == "Entity" and "subentity" in ent[ "flags" ] :
         body += "    inline virtual bool isSubEntity( void ) final { return true; }\n"
 
-    # issubentity method declaration and definition
+    # isNotHierarchy method declaration and definition
     if objectType == "Entity" and "noHierarchy" in ent[ "flags" ] :
         body += "    inline virtual bool isNotHierarchy( void ) final { return true; }\n"
 

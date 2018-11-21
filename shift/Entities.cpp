@@ -178,9 +178,8 @@ namespace shift
     }
   }
 
-  void Entities::removeRelatedEntitiesOneToN(
-    const RelationshipOneToN& relation, const Entity* entity,
-    const Entities& searchEntities, int depthLevel)
+  void Entities::removeRelatedEntitiesOneToN( const RelationshipOneToN& relation,
+    const Entity* entity, const Entities& searchEntities, int depthLevel)
   {
     const auto &relatives = relation.at( entity->entityGid( ));
     depthLevel--;

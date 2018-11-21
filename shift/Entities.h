@@ -2,6 +2,7 @@
  * Copyright (c) 2014-2016 GMRV/URJC/UPM.
  *
  * Authors: Pablo Toharia <pablo.toharia@upm.es>
+ *          Iago Calvo Lista <i.calvol@alumnos.urjc.es>
  *
  * This file is part of ShiFT
  *
@@ -103,8 +104,8 @@ namespace shift
 
     size_t size( void ) const
     {
-      SHIFT_CHECK_THROW( _vector.size( ) == _map.size( ),
-        "ERROR: size incoherence between map and vector" );
+      //SHIFT_CHECK_THROW( _vector.size( ) == _map.size( ),
+      //  "ERROR: size incoherence between map and vector" );
       return _map.size( );
     }
 
