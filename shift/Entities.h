@@ -94,45 +94,45 @@ namespace shift
 
     IndexedEntitiesValue& at( const IndexedEntitiesKey& idx )
     {
-      return _map.at( idx );
+      return _mapEntities.at( idx );
     }
 
     const IndexedEntitiesValue& at( const IndexedEntitiesKey& idx ) const
     {
-      return _map.at( idx );
+      return _mapEntities.at( idx );
     }
 
     size_t size( void ) const
     {
       //SHIFT_CHECK_THROW( _vector.size( ) == _map.size( ),
       //  "ERROR: size incoherence between map and vector" );
-      return _map.size( );
+      return _mapEntities.size( );
     }
 
     void clear( void )
     {
-      _map.clear( );
-      _vector.clear( );
+      _mapEntities.clear( );
+      _vectorEntities.clear( );
     }
 
     const IndexedEntities& map( void ) const
     {
-      return _map;
+      return _mapEntities;
     }
 
     const VectorizedEntities& vector( void ) const
     {
-      return _vector;
+      return _vectorEntities;
     }
 
     VectorizedEntities& vector( void )
     {
-      return _vector;
+      return _vectorEntities;
     }
 
   protected:
-    IndexedEntities _map;
-    VectorizedEntities _vector;
+    IndexedEntities _mapEntities;
+    VectorizedEntities _vectorEntities;
   };
 
   class Relationship;
