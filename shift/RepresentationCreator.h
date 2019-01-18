@@ -66,6 +66,11 @@ namespace shift
   public:
     virtual ~RepresentationCreator( void ) {};
 
+    virtual void updateRepresentation(
+      const shift::Entity* entity,
+      shift::Representation* representation
+      ) = 0;
+
     virtual void create(
       const shift::Entities& entities,
       shift::Representations& representations,
