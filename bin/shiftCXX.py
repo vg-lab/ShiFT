@@ -50,7 +50,7 @@ def print_header( objectType, ents, ent, file ):
     body += "  {\n"
 
     body += "  protected:\n" \
-            "  static const std::string _entityName;\n"
+            "  static const std::string _typeName;\n"
 
     body += "  public:\n"
 
@@ -107,10 +107,10 @@ def print_header( objectType, ents, ent, file ):
     # Destructor declaration
     body += "    virtual ~" + ent[ "name" ] +  "( void );\n"
 
-    # Entity Name method declaration and definition
-    if objectType == "Entity" :
-        body += "    const std::string& entityName( void ) const final {"\
-                " return _entityName; }\n"
+    # Type Name method declaration and definition
+    if objectType == "Entity" or objectType == "Relationship":
+        body += "    const std::string& typeName( void ) const final {"\
+                " return _typeName; }\n"
 
     # create method for entities declaration
     if objectType == "Entity" :
@@ -124,11 +124,6 @@ def print_header( objectType, ents, ent, file ):
     # create method for relationships declaration
     if objectType == "Relationship" :
         body += "    virtual shift::RelationshipProperties* create( void ) const override;\n"
-
-    # relationName method for relationships declaration
-    if objectType == "Relationship":
-        body += "    const std::string& relationName( void ) const final {" \
-               " return _entityName; }\n"
 
     # issubentity method declaration and definition
     if objectType == "Entity" and "subentity" in ent[ "flags" ] :
@@ -221,7 +216,7 @@ def print_impl( objectType, ents, ent, file ):
         body += "{\n"
 
     body += "  const std::string " + ent[ "name" ] + \
-            "::_entityName = \"" + ent[ "name" ] + "\";\n\n"
+            "::_typeName = \"" + ent[ "name" ] + "\";\n\n"
 
     # property flags map initialization for entities
     if objectType == "Entity" :
@@ -491,7 +486,7 @@ def print_impl( objectType, ents, ent, file ):
                "entities" in prop[ "auto" ][ "source" ] and \
                "property" in prop[ "auto" ][ "source" ] :
                 auto = prop[ "auto" ]
-                relEntComp = [ "dependency->entityName( ) == \"" + s + "\""  for s in auto[ "source" ][ "entities" ]]
+                relEntComp = [ "dependency->typeName( ) == \"" + s + "\""  for s in auto[ "source" ][ "entities" ]]
                 body += "    if ( relName == \"" + auto[ "source" ][ "relName" ] +"\" &&\n" + \
                         "        ( "
                 body += ' ||\n          '.join( str( relEnt ) for relEnt in relEntComp )
@@ -524,7 +519,7 @@ def print_impl( objectType, ents, ent, file ):
                "entities" in prop[ "auto" ][ "source" ] and \
                "property" in prop[ "auto" ][ "source" ] :
                 auto = prop[ "auto" ]
-                relEntComp = [ "dependency->entityName( ) == \"" + s + "\""  for s in auto[ "source" ][ "entities" ]]
+                relEntComp = [ "dependency->typeName( ) == \"" + s + "\""  for s in auto[ "source" ][ "entities" ]]
                 body += "    if ( relName == \"" + auto[ "source" ][ "relName" ] +"\" &&\n" + \
                         "        ( "
                 body += ' ||\n          '.join( str( relEnt ) for relEnt in relEntComp )
@@ -590,7 +585,7 @@ def print_impl( objectType, ents, ent, file ):
                "entities" in prop[ "auto" ][ "source" ] and \
                "property" in prop[ "auto" ][ "source" ] :
                 auto = prop[ "auto" ]
-                relEntComp = [ "dependency->relationName( ) == \"" + s + "\""  for s in auto[ "source" ][ "entities" ]]
+                relEntComp = [ "dependency->typeName( ) == \"" + s + "\""  for s in auto[ "source" ][ "entities" ]]
                 body += "    if ( \n" + \
                         "        ( "
                 body += ' ||\n          '.join( str( relEnt ) for relEnt in relEntComp )
@@ -622,7 +617,7 @@ def print_impl( objectType, ents, ent, file ):
                "entities" in prop[ "auto" ][ "source" ] and \
                "property" in prop[ "auto" ][ "source" ] :
                 auto = prop[ "auto" ]
-                relEntComp = [ "dependency->relationName( ) == \"" + s + "\""  for s in auto[ "source" ][ "entities" ]]
+                relEntComp = [ "dependency->typeName( ) == \"" + s + "\""  for s in auto[ "source" ][ "entities" ]]
                 body += "    if ( \n" + \
                         "        ( "
                 body += ' ||\n          '.join( str( relEnt ) for relEnt in relEntComp )
