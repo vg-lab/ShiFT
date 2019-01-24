@@ -38,37 +38,38 @@ namespace shift
   void Entities::add( Entity* entity )
   {
     const auto entityGid = entity->entityGid( );
-    SHIFT_CHECK_THROW( _map.find( entityGid ) == _map.end( ),
+    SHIFT_CHECK_THROW( _mapEntities.find( entityGid ) == _mapEntities.end( ),
       "ERROR: element already in map" );
-    _map.insert( std::make_pair( entityGid, entity ));
-    _vector.push_back( entity );
-    SHIFT_CHECK_THROW( _vector.size( ) == _map.size( ),
+    _mapEntities.insert( std::make_pair( entityGid, entity ));
+    _vectorEntities.push_back( entity );
+    SHIFT_CHECK_THROW( _vectorEntities.size( ) == _mapEntities.size( ),
       "ERROR: size incoherence between map and vector" );
   }
 
   void Entities::remove( const Entity* entity )
   {
-    auto mapIt = _map.find( entity->entityGid( ));
-    SHIFT_CHECK_THROW( mapIt != _map.end( ),
+    auto mapIt = _mapEntities.find( entity->entityGid( ));
+    SHIFT_CHECK_THROW( mapIt != _mapEntities.end( ),
       "ERROR: element not contained in map" );
-    _map.erase( mapIt );
-    auto vectorIt = std::find( _vector.begin( ), _vector.end( ), entity );
-    SHIFT_CHECK_THROW( vectorIt != _vector.end( ),
+    _mapEntities.erase( mapIt );
+    auto vectorIt = std::find( _vectorEntities.begin( ), _vectorEntities.end( ),
+      entity );
+    SHIFT_CHECK_THROW( vectorIt != _vectorEntities.end( ),
       "ERROR: element not contained in vector" );
-    _vector.erase( vectorIt );
-    SHIFT_CHECK_THROW(_vector.size( ) == _map.size( ),
+    _vectorEntities.erase( vectorIt );
+    SHIFT_CHECK_THROW(_vectorEntities.size( ) == _mapEntities.size( ),
       "ERROR: size incoherence between map and vector" );
   }
 
   bool  Entities::addIfNotContains( Entity* entity )
   {
     const auto entityGid = entity->entityGid( );
-    auto mapIt = _map.find( entityGid);
-    if ( mapIt == _map.end( ))
+    auto mapIt = _mapEntities.find( entityGid );
+    if ( mapIt == _mapEntities.end( ))
     {
-      _map.insert( std::make_pair( entityGid, entity ));
-      _vector.push_back( entity );
-      SHIFT_CHECK_THROW( _vector.size( ) == _map.size( ),
+      _mapEntities.insert( std::make_pair( entityGid, entity ));
+      _vectorEntities.push_back( entity );
+      SHIFT_CHECK_THROW( _vectorEntities.size( ) == _mapEntities.size( ),
         "ERROR: size incoherence between map and vector" );
       return true;
     }
@@ -80,15 +81,17 @@ namespace shift
 
   bool  Entities::removeIfContains( const Entity* entity )
   {
-    auto mapIt = _map.find( entity->entityGid( ));
-    if ( mapIt != _map.end( ))
+    auto mapIt = _mapEntities.find( entity->entityGid( ));
+    if ( mapIt != _mapEntities.end( ))
     {
-      _map.erase( mapIt );
-      auto vectorIt = std::find( _vector.begin( ),_vector.end( ), entity );
-      SHIFT_CHECK_THROW( vectorIt != _vector.end( ),
+      _mapEntities.erase( mapIt );
+      auto vectorIt = std::find( _vectorEntities.begin( ),
+        _vectorEntities.end( ), entity );
+      //todo: performance may be improved by redoing _entitiesVector
+      SHIFT_CHECK_THROW( vectorIt != _vectorEntities.end( ),
         "ERROR: element not contained in vector" );
-      _vector.erase( vectorIt );
-      SHIFT_CHECK_THROW(_vector.size( ) == _map.size( ),
+      _vectorEntities.erase( vectorIt );
+      SHIFT_CHECK_THROW(_vectorEntities.size( ) == _mapEntities.size( ),
         "ERROR: size incoherence between map and vector" );
       return true;
     }
@@ -100,7 +103,7 @@ namespace shift
 
   bool  Entities::contains( const Entity* entity ) const
   {
-    return _map.find( entity->entityGid( )) != _map.end( );
+    return _mapEntities.find( entity->entityGid( )) != _mapEntities.end( );
   }
 
   void Entities::addRelatedEntitiesOneToN( const RelationshipOneToN& relation,
@@ -138,8 +141,9 @@ namespace shift
     }
   }
 
-  void Entities::addRelatedEntitiesOneToOne( const RelationshipOneToOne& relation,
-    const Entity* entity, const Entities& searchEntities, int depthLevel,
+  void Entities::addRelatedEntitiesOneToOne(
+    const RelationshipOneToOne& relation, const Entity* entity,
+    const Entities& searchEntities, int depthLevel,
     Entities* compareEntities, const bool removeIfContained,
     const bool removeContainedRelatives )
   {
@@ -216,5 +220,41 @@ namespace shift
   bool Entities::empty( void ) const
   {
     return vector( ).empty( );
+  }
+
+  void Entities::addEntities( const Entities& entities )
+  {
+    for ( const auto entity : entities.vector( ))
+    {
+      auto entityGid = entity->entityGid( );
+      SHIFT_CHECK_THROW( _mapEntities.find( entityGid ) == _mapEntities.end( ),
+        "ERROR: element already in map" );
+      _mapEntities.insert( std::make_pair( entityGid, entity ));
+      _vectorEntities.push_back( entity );
+    }
+    SHIFT_CHECK_THROW( _vectorEntities.size( ) == _mapEntities.size( ),
+      "ERROR: size incoherence between map and vector" );
+  }
+
+  bool Entities::addEntitiesIfNotContains( const Entities& entities )
+  {
+    bool returnValue = true;
+    for ( const auto entity : entities.vector( ))
+    {
+      auto entityGid = entity->entityGid( );
+      auto mapIt = _mapEntities.find( entityGid );
+      if( mapIt == _mapEntities.end( ) )
+      {
+        _mapEntities.insert( std::make_pair( entityGid, entity ) );
+        _vectorEntities.push_back( entity );
+      }
+      else
+      {
+        returnValue = false;
+      }
+    }
+    SHIFT_CHECK_THROW( _vectorEntities.size( ) == _mapEntities.size( ),
+      "ERROR: size incoherence between map and vector" );
+    return returnValue;
   }
 }
