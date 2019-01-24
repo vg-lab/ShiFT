@@ -39,7 +39,7 @@ namespace shift
     for( auto relRelation : *_relatedRelations )
     {
       for( const auto& relatedEntitiesName : relatedEntitiesNames_ )
-        if( relRelation->relationName( ) == relatedEntitiesName )
+        if( relRelation->typeName( ) == relatedEntitiesName )
           if( relRelation->hasProperty( origPropertyLabel_ ) ||
               op_ == TAutoUpdatePropertyOp::COUNT )
             objs.add( relRelation );
@@ -92,5 +92,13 @@ namespace shift
     RelationshipProperties::TPropertyFlag ) const
   {
     return false;
+  }
+
+
+  const std::string& RelationshipProperties::typeName( void ) const
+  {
+    SHIFT_THROW( "TypeName must be reimplemented and not used" );
+    static const std::string emptyString = "";
+    return emptyString;
   }
 }
