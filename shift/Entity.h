@@ -57,7 +57,7 @@ namespace shift
     SHIFT_API
     EntityGid entityGid( void ) const;
 
-    virtual const std::string& entityName( void ) const = 0;
+    virtual const std::string& typeName( void ) const = 0;
 
     SHIFT_API
     virtual Entity* create( void ) const = 0;

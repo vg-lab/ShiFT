@@ -47,7 +47,7 @@ namespace shift
     SHIFT_API
     virtual bool hasPropertyFlag( const std::string& /* propertyLabel */,
       TPropertyFlag /* flag */ ) const;
-    virtual const std::string& relationName( void ) const { return *new std::string();}
+    SHIFT_API virtual const std::string& typeName( void ) const;
     virtual ~RelationshipProperties( void ) { }
     SHIFT_API
     virtual void autoUpdateProperties( void ){ };

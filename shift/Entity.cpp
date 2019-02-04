@@ -60,7 +60,7 @@ namespace shift
       const auto& relEntIt = entsMap.find( relEntGid.first );
       if ( relEntIt == entsMap.end( )) continue;
       for ( const auto& relatedEntitiesName : relatedEntitiesNames )
-        if ( relEntIt->second->entityName( ) == relatedEntitiesName )
+        if ( relEntIt->second->typeName( ) == relatedEntitiesName )
           if ( relEntIt->second->hasProperty( origPropertyLabel ) ||
                op == TAutoUpdatePropertyOp::COUNT )
             objs.add( relEntIt->second );
