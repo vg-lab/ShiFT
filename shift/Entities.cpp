@@ -184,9 +184,13 @@ namespace shift
   void Entities::removeRelatedEntitiesOneToN( const RelationshipOneToN& relation,
     const Entity* entity, const Entities& searchEntities, int depthLevel)
   {
-    const auto &relatives = relation.at( entity->entityGid( ));
+    const auto relationIt = relation.find(entity->entityGid( ));
+    if(relationIt == relation.end( ))
+    {
+      return;
+    }
     depthLevel--;
-    for ( const auto& relative : relatives )
+    for ( const auto& relative : relationIt->second )
     {
       Entity* relatedEntity = searchEntities.at( relative.first );
 
@@ -202,13 +206,15 @@ namespace shift
     const RelationshipOneToOne& relation, const Entity* entity,
     const Entities& searchEntities, int depthLevel )
   {
-    for ( auto parent = relation.at( entity->entityGid( )).entity;
-          parent != 0; --depthLevel )
+    auto parent = entity->entityGid( );
+    for ( auto relationIt = relation.find( parent );
+          parent != 0 && relationIt != relation.end( ); --depthLevel )
     {
+      parent = relationIt->first;
       Entity* relatedEntity = searchEntities.at( parent );
       if ( removeIfContains( relatedEntity ) && depthLevel != 1 )
       {
-        parent = relation.at( parent ).entity;
+        relationIt = relation.find(parent);
       }
       else
       {
