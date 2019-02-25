@@ -40,10 +40,8 @@ namespace shift
   {
   public:
 
-    typedef enum { EDITABLE, UNIQUE } TPropertyFlag;
     typedef std::unordered_map< std::string,
-      std::set< shift::Entity::TPropertyFlag >> TPropertiesFlagsMap;
-    typedef enum { SUM, MEAN, MIN, MAX, COUNT } TAutoUpdatePropertyOp;
+      std::set< shift::Properties::TPropertyFlag >> TPropertiesFlagsMap;
 
     SHIFT_API
     Entity( void );
@@ -91,7 +89,7 @@ namespace shift
     SHIFT_API void autoUpdatePropertyWithRelatedEntities(
       const std::string& relName,
       const std::vector< std::string >& relatedEntitiesNames,
-      TAutoUpdatePropertyOp op,
+      TAutoUpdatePropertyOp op_,
       const std::string& origPropertyLabel,
       const std::string& destPropertyLabel );
 
@@ -102,6 +100,13 @@ namespace shift
 
   protected:
     EntityGid _entityGid;
+
+    void static autoCalcProperty(
+      const TAutoUpdatePropertyOp& op_,
+      const std::string& origPropertyLabel_,
+      const std::string& destPropertyLabel_,
+      fires::Objects& objs_,
+      fires::Object& object_ );
   };
 
 

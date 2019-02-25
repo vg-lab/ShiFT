@@ -166,7 +166,7 @@ def print_header( objectType, ents, ent, file ):
     # propertyFlags method declaration and definition
     if objectType == "Entity" :
         body += "    inline virtual bool hasPropertyFlag( const std::string& propertyLabel,\n" + \
-                "                                         shift::Entity::TPropertyFlag flag ) const final\n" +\
+                "                                         shift::Properties::TPropertyFlag flag ) const final\n" +\
                 "    {\n" + \
                 "      return ( " + ent[ "name"] + "::_propertyFlags[ propertyLabel ].count( flag ) > 0 );\n" + \
                 "    }\n\n"
@@ -178,7 +178,7 @@ def print_header( objectType, ents, ent, file ):
     # propertyFlags method declaration and definition
     if objectType == "Relationship" :
         body += "    inline virtual bool hasPropertyFlag( const std::string& propertyLabel,\n" + \
-                "                                         shift::RelationshipProperties::TPropertyFlag flag ) const final\n" + \
+                "                                         shift::Properties::TPropertyFlag flag ) const final\n" + \
                 "    {\n" + \
                 "      return ( " + ent[ "name"] + "::_propertyFlags[ propertyLabel ].count( flag ) > 0 );\n" + \
                 "    }\n\n"
@@ -231,7 +231,7 @@ def print_impl( objectType, ents, ent, file ):
             body += "  { \"" + prop[ "name" ] + "\",\n    {\n"
             if "flags" in prop :
                 for flag in prop[ "flags" ] :
-                    body += "       shift::Entity::TPropertyFlag::" + flag;
+                    body += "       shift::Properties::TPropertyFlag::" + flag;
                     if prop[ "flags"].index( flag ) != len( prop[ "flags"] ) - 1 :
                         body += ","
                     body += "\n"
@@ -251,7 +251,7 @@ def print_impl( objectType, ents, ent, file ):
             body += "  { \"" + prop[ "name" ] + "\",\n    {\n"
             if "flags" in prop :
                 for flag in prop[ "flags" ] :
-                    body += "       shift::RelationshipProperties::TPropertyFlag::" + flag;
+                    body += "       shift::Properties::TPropertyFlag::" + flag;
                     if prop[ "flags"].index( flag ) != len( prop[ "flags"] ) - 1 :
                         body += ","
                     body += "\n"
@@ -435,7 +435,7 @@ def print_impl( objectType, ents, ent, file ):
                 auto = prop[ "auto" ]
                 if ( auto[ "op" ] == "SUM" or auto[ "op" ] == "MEAN" or \
                      auto[ "op" ] == "MAX" or auto[ "op" ] == "MIN" or \
-                     auto[ "op" ] == "COUNT" ) and \
+                     auto[ "op" ] == "MAXPLUS1" or auto[ "op" ] == "COUNT" ) and \
                         "source" in auto and "entities" in auto[ "source" ]:
                     body +=  "    this->autoUpdateProperty(nullptr, \"" + prop[ "name" ]+"\" );\n"
         body += "  }\n"
@@ -452,7 +452,7 @@ def print_impl( objectType, ents, ent, file ):
                 auto = prop[ "auto" ]
                 if ( auto[ "op" ] == "SUM" or auto[ "op" ] == "MEAN" or \
                      auto[ "op" ] == "MAX" or auto[ "op" ] == "MIN" or \
-                     auto[ "op" ] == "COUNT" ) and \
+                     auto[ "op" ] == "MAXPLUS1" or auto[ "op" ] == "COUNT" ) and \
                      "source" in auto and "entities" in auto[ "source" ]:
                     body +=  "    if ( propertyLabel == \"" + prop[ "name" ] + "\" )\n"
                     body += \
@@ -465,6 +465,7 @@ def print_impl( objectType, ents, ent, file ):
                     if auto[ "op" ] == "SUM" : op = "TAutoUpdatePropertyOp::SUM"
                     elif auto[ "op" ] == "MEAN" : op = "TAutoUpdatePropertyOp::MEAN"
                     elif auto[ "op" ] == "MAX" : op = "TAutoUpdatePropertyOp::MAX"
+                    elif auto[ "op" ] == "MAXPLUS1" : op = "TAutoUpdatePropertyOp::MAXPLUS1"
                     elif auto[ "op" ] == "MIN" : op = "TAutoUpdatePropertyOp::MIN"
                     elif auto[ "op" ] == "COUNT" : op = "TAutoUpdatePropertyOp::COUNT"
                     if "property" in auto[ "source" ] :
@@ -553,7 +554,7 @@ def print_impl( objectType, ents, ent, file ):
                 auto = prop[ "auto" ]
                 if ( auto[ "op" ] == "SUM" or auto[ "op" ] == "MEAN" or \
                      auto[ "op" ] == "MAX" or auto[ "op" ] == "MIN" or \
-                     auto[ "op" ] == "COUNT" ) and \
+                     auto[ "op" ] == "MAXPLUS1" or auto[ "op" ] == "COUNT" ) and \
                      "source" in auto and "entities" in auto[ "source" ]:
                     body +=  "    if ( propertyLabel == \"" + prop[ "name" ] + "\" )\n"
                     body += \
@@ -565,6 +566,7 @@ def print_impl( objectType, ents, ent, file ):
                     if auto[ "op" ] == "SUM" : op = "TAutoUpdatePropertyOp::SUM"
                     elif auto[ "op" ] == "MEAN" : op = "TAutoUpdatePropertyOp::MEAN"
                     elif auto[ "op" ] == "MAX" : op = "TAutoUpdatePropertyOp::MAX"
+                    elif auto[ "op" ] == "MAXPLUS1" : op = "TAutoUpdatePropertyOp::MAXPLUS1"
                     elif auto[ "op" ] == "MIN" : op = "TAutoUpdatePropertyOp::MIN"
                     elif auto[ "op" ] == "COUNT" : op = "TAutoUpdatePropertyOp::COUNT"
                     if "property" in auto[ "source" ] :

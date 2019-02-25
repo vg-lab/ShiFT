@@ -32,10 +32,11 @@ namespace shift
   class Properties : public fires::Object
   {
   public:
-    typedef enum
-    {
-      SUBPROPERTY
-    } PropertyConstraintType;
+    typedef enum { SUBPROPERTY } PropertyConstraintType;
+
+    typedef enum { SUM, MEAN, MIN, MAX, MAXPLUS1, COUNT } TAutoUpdatePropertyOp;
+    typedef enum { EDITABLE, UNIQUE, HIDE } TPropertyFlag;
+
 
     virtual bool evalConstraint(
       const PropertyConstraintType& /* constraintType */,
