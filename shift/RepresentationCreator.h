@@ -66,6 +66,11 @@ namespace shift
   public:
     virtual ~RepresentationCreator( void ) {};
 
+    virtual void updateRepresentation(
+      const shift::Entity* entity,
+      shift::Representation* representation
+      ) = 0;
+
     virtual void create(
       const shift::Entities& entities,
       shift::Representations& representations,
@@ -92,14 +97,14 @@ namespace shift
     virtual void clear( void ) { }
 
     // Should return true if any changes have occurred
-    virtual bool entityUpdatedOrCreated( shift::Entity* /* entity */ )
+    virtual bool entityUpdatedOrCreated( const shift::Entity* /* entity */ )
     {
       return false;
     }
 
     // Should return true if any changes have occurred
     virtual bool relationshipUpdatedOrCreated(
-      shift::RelationshipProperties* /* relProperties */ )
+      const shift::RelationshipProperties* /* relProperties */ )
     {
       return false;
     }

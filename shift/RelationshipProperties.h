@@ -36,10 +36,8 @@ namespace shift
   class RelationshipProperties : public Properties
   {
     public:
-    typedef enum { SUM, MEAN, MIN, MAX, COUNT } TAutoUpdatePropertyOp;
-    typedef enum { EDITABLE } TPropertyFlag;
     typedef std::unordered_map< std::string,
-      std::set< RelationshipProperties::TPropertyFlag >> TPropertiesFlagsMap;
+      std::set< Properties::TPropertyFlag >> TPropertiesFlagsMap;
 
     RelationshipProperties( void ) { }
     SHIFT_API virtual RelationshipProperties* create( void ) const
@@ -55,11 +53,18 @@ namespace shift
       const std::string& /* propertyLabel */ ) { };
     SHIFT_API void autoUpdatePropertyWithRelatedRelations(
       const std::vector< std::string >& relatedEntitiesNames_,
-      RelationshipProperties::TAutoUpdatePropertyOp op_,
+      TAutoUpdatePropertyOp op_,
       const std::string& origPropertyLabel_,
       const std::string& destPropertyLabel_);
     SHIFT_API virtual void relatedRelations(
       std::vector< RelationshipProperties* >* relatedRelations_ );
+
+    SHIFT_API static void autoCalcProperty(
+      const Properties::TAutoUpdatePropertyOp& op_,
+      const std::string& origPropertyLabel_,
+      const std::string& destPropertyLabel_,
+      fires::Objects& objs_,
+      fires::Object& object_ );
 
     virtual void setRelatedDependencies(
       shift::RelationshipProperties* /* dependency */ ) {}
