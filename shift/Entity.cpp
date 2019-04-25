@@ -23,11 +23,11 @@
 
 namespace shift
 {
-  static EntityGid shiftEntityGid = 0;
+  EntityGid Entity::_shiftEntityGid = 0;
 
   Entity::Entity( void )
   {
-    _entityGid = ++shiftEntityGid;
+    _entityGid = ++_shiftEntityGid;
   }
 
   Entity::~Entity( void )
@@ -37,6 +37,25 @@ namespace shift
   EntityGid Entity::entityGid( void ) const
   {
     return _entityGid;
+  }
+
+  void Entity::entityGid( EntityGid entityGid_ )
+  {
+    _entityGid = entityGid_;
+  }
+
+  EntityGid Entity::shiftEntityGid( void )
+  {
+    return _shiftEntityGid;
+  }
+
+  void Entity::shiftEntityGid( EntityGid shiftEntityGid_,
+    const bool compare )
+  {
+    if ( shiftEntityGid_ > _shiftEntityGid || !compare )
+    {
+      _shiftEntityGid = shiftEntityGid_;
+    }
   }
 
   void Entity::autoUpdatePropertyWithRelatedEntities(
