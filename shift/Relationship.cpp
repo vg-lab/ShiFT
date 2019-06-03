@@ -102,6 +102,32 @@ namespace shift
     return this;
   }
 
+  void Relationship::clearRelations( void )
+  {
+    std::cout << "Use type implementation.";
+  }
+
+  void RelationshipNToN::clearRelations( void )
+  {
+    this->clear( );
+  }
+
+  void RelationshipOneToN::clearRelations( void )
+  {
+    this->clear( );
+  }
+
+  void RelationshipOneToOne::clearRelations( void )
+  {
+    this->clear( );
+  }
+
+  void RelationshipAggregatedOneToN::clearRelations( void )
+  {
+    _mapBaseRels.clear( );
+    _mapAggregatedRels.clear( );
+  }
+
   void Relationship::Establish( RelationshipOneToN& relOneToN,
     RelationshipOneToOne& relOneToOne,
     Entity* entityOrig, Entity* entityDest )
@@ -245,10 +271,10 @@ namespace shift
     //Checks that the aggregated relation it's not the original relation
     SHIFT_CHECK_THROW( entityOrigGid != entityBaseOrigGid
       || entityBaseDestGid != entityDestGid, "Aggregating normal connection" );
-    const std::string entityOrigName = entityOrig->getProperty( "Entity name" )
-      .value<std::string>( );
-    const std::string entityDestName = entityDest->getProperty( "Entity name" )
-      .value<std::string>( );
+    const std::string entityOrigName = entityOrig->
+      getPropertyValue<std::string>( "Entity name", " " );
+    const std::string entityDestName = entityDest->
+        getPropertyValue<std::string>( "Entity name", " " );
     //Inserts the aggregated relation
     relOneToNOrig.addBaseRelation( entityOrigGid, entityDestGid,
       entityBaseOrigGid, entityBaseDestGid, propertiesOrig, recalcProperties,
@@ -258,23 +284,10 @@ namespace shift
       entityDestName, entityOrigName );
   }
 
-  void Relationship::EstablishWithHierarchy( RelationshipOneToN& relOneToN,
-    RelationshipOneToOne& relOneToOne,
-    RelationshipAggregatedOneToN& /*relAggregatedOneToNOrig*/,
-    RelationshipAggregatedOneToN& /*relAggregatedOneToNDest*/,
-    Entity* entityOrig, Entity* entityDest )
-  {
-    //Establish the hierarchy relationship
-    Establish(relOneToN,relOneToOne,entityOrig,entityDest);
-
-    //todo: modify aggregated dependencies
-  }
-
   void Relationship::BreakAnAggregatedRelation(
     RelationshipAggregatedOneToN& relAggregatedOneToNOrig,
     RelationshipAggregatedOneToN& relAggregatedOneToNDest,
-    Entities& /*searchEntities*/, Entity* entityOrig,
-    Entity* entityDest )
+    Entity* entityOrig, Entity* entityDest )
   {
     //Get base relations
     RelationshipOneToN& relOriginalOneToNOrig =
@@ -302,7 +315,7 @@ namespace shift
   void Relationship::EstablishAndAggregate(
     RelationshipAggregatedOneToN& relAggregatedOneToNOrig,
     RelationshipAggregatedOneToN& relAggregatedOneToNDest,
-    Entities& searchEntities, Entity* entityOrig,
+    const Entities& searchEntities, Entity* entityOrig,
     Entity* entityDest, RelationshipProperties* propertiesOrig,
     RelationshipProperties* propertiesDest, bool recalcProperties  )
   {
@@ -317,6 +330,19 @@ namespace shift
     Establish( relOriginalOneToNOrig, relOriginalOneToNDest, entityOrig,
       entityDest, propertiesOrig, propertiesDest );
 
+    AggregateDependentRelations( relAggregatedOneToNOrig,
+      relAggregatedOneToNDest, searchEntities, entityOrig, entityDest,
+      propertiesOrig, propertiesDest, recalcProperties, relHierarchyOneToOne );
+  }
+
+  void Relationship::AggregateDependentRelations(
+    RelationshipAggregatedOneToN& relAggregatedOneToNOrig,
+    RelationshipAggregatedOneToN& relAggregatedOneToNDest,
+    const Entities& searchEntities, Entity* entityOrig,
+    Entity* entityDest, RelationshipProperties* propertiesOrig,
+    RelationshipProperties* propertiesDest, bool recalcProperties,
+    const RelationshipOneToOne& relHierarchyOneToOne )
+  {
     if ( entityDest->entityGid( ) != entityOrig->entityGid( ))
     {
       //Search for all not common parents
@@ -670,6 +696,63 @@ namespace shift
       }
     }
     return nullptr;
+  }
+
+  void Relationship::UpdateAggregatedRelations(
+    RelationshipAggregatedOneToN& relAggregatedOneToNOrig,
+    RelationshipAggregatedOneToN& relAggregatedOneToNDest,
+    const Entities& searchEntities )
+  {
+    relAggregatedOneToNOrig.clearRelations( );
+    relAggregatedOneToNDest.clearRelations( );
+
+    RelationshipOneToN& relOriginalOneToNOrig =
+      *(relAggregatedOneToNOrig.baseRelationShip( ));
+    RelationshipOneToOne& relHierarchyOneToOne =
+      *(relAggregatedOneToNOrig.hierarchyRelationShip( ));
+
+    for ( auto relationOrig : relOriginalOneToNOrig )
+    {
+      shift::Entity* entityOrig = searchEntities.at( relationOrig.first );
+      for ( auto relationDest : relationOrig.second )
+      {
+        AggregateDependentRelations( relAggregatedOneToNOrig, relAggregatedOneToNDest,
+          searchEntities, entityOrig, searchEntities.at( relationDest.first ),
+          relationDest.second, relationDest.second, true, relHierarchyOneToOne );
+      }
+    }
+  }
+
+  void Relationship::ChangeEntityParent(
+      RelationshipOneToN& relParentOf,
+      RelationshipOneToOne& relChildOf,
+      RelationshipAggregatedOneToN& relAggregatedOneToNOrig,
+      RelationshipAggregatedOneToN& relAggregatedOneToNDest,
+      Entity* childEntity,
+      Entity* newParentEntity,
+      const Entities& searchEntities,
+      Entities& rootEntities )
+  {
+    auto parentIt = relChildOf.find( childEntity->entityGid( ));
+    if ( parentIt != relChildOf.end( ) && parentIt->second.entity > 0 )
+    {
+      auto parentEntity = searchEntities.at( parentIt->second.entity );
+      shift::Relationship::relationBreak( relParentOf, relChildOf,
+        parentEntity, childEntity );
+      shift::Relationship::Establish( relParentOf, relChildOf,
+        parentEntity, newParentEntity );
+    }
+
+    shift::Relationship::Establish( relParentOf, relChildOf,
+      newParentEntity, childEntity );
+    if (rootEntities.removeIfContains( childEntity ))
+    {
+      rootEntities.add( newParentEntity );
+    }
+
+    shift::Relationship::UpdateAggregatedRelations( relAggregatedOneToNOrig,
+      relAggregatedOneToNDest, searchEntities );
+
   }
 
 } // namespace shift

@@ -42,7 +42,7 @@ namespace shift
     const TEntitiesTypes& entitiesTypes( void ) const { return _entitiesTypes; };
     const TEntitiesTypes& notHierarchyTypes( void ) const { return _notHierarchyTypes; };
 
-    Entity* getEntityObject( std::string entityTypeName )
+    Entity* getEntityObject( std::string entityTypeName ) const
     {
       for( auto entityTuple : _entitiesTypes )
       {

@@ -55,6 +55,16 @@ namespace shift
     SHIFT_API
     EntityGid entityGid( void ) const;
 
+    SHIFT_API
+    void entityGid( EntityGid entityGid_ );
+
+    SHIFT_API
+    static EntityGid shiftEntityGid( void );
+
+    SHIFT_API
+    static void shiftEntityGid( EntityGid shiftEntityGid_,
+      const bool compare = false );
+
     virtual const std::string& typeName( void ) const = 0;
 
     SHIFT_API
@@ -100,6 +110,8 @@ namespace shift
 
   protected:
     EntityGid _entityGid;
+
+    static EntityGid _shiftEntityGid;
 
     void static autoCalcProperty(
       const TAutoUpdatePropertyOp& op_,
