@@ -31,17 +31,15 @@
 namespace shift
 {
   typedef std::unordered_map< shift::Entity*,
-                              std::set< shift::Representation* >>
+    std::set< shift::Representation* >>
     TEntitiesToReps;
   typedef std::unordered_map< shift::Representation*,
-                              std::set< shift::Entity* >>
+    std::set< shift::Entity* >>
     TRepsToEntities;
 
   typedef std::tuple< shift::Representation*,
-                      shift::Entity*,
-                      shift::Entity*,
-                      shift::Representation*,
-                      shift::Representation*> TEntityRelationRep;
+    shift::Entity*, shift::Entity*, shift::Representation*,
+    shift::Representation*> TEntityRelationRep;
 
   struct pairhash {
   public:
@@ -52,11 +50,10 @@ namespace shift
     }
   };
   typedef std::unordered_multimap< std::pair< unsigned int, unsigned int >,
-                                   TEntityRelationRep,
-                                   pairhash > TRelatedEntitiesReps;
+    TEntityRelationRep, pairhash > TRelatedEntitiesReps;
 
   typedef std::unordered_map< unsigned int,
-      std::pair< shift::Entity*, shift::Representation* >> TGidToEntitiesReps;
+    std::pair< shift::Entity*, shift::Representation* >> TGidToEntitiesReps;
 
 
   class RepresentationCreator
@@ -95,6 +92,7 @@ namespace shift
       shift::RelationshipAggregatedOneToN* relatedElements ) = 0;
 
     virtual void clear( void ) { }
+    virtual void reset( void ) { }
 
     // Should return true if any changes have occurred
     virtual bool entityUpdatedOrCreated( const shift::Entity* /* entity */ )
