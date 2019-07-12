@@ -31,28 +31,43 @@
 
 namespace shift
 {
-
   class EntitiesTypes
   {
   public:
-    enum { ENTITY_NAME = 0, OBJECT, IS_SUBENTITY, IS_NOT_HIERARCHY };
-    typedef std::vector< std::tuple< std::string, Entity*, bool, bool >> TEntitiesTypes;
-
-    virtual ~EntitiesTypes( void ) {}
-    const TEntitiesTypes& entitiesTypes( void ) const { return _entitiesTypes; };
-    const TEntitiesTypes& notHierarchyTypes( void ) const { return _notHierarchyTypes; };
-
-    Entity* getEntityObject( std::string entityTypeName ) const
+    enum
     {
-      for( auto entityTuple : _entitiesTypes )
+      ENTITY_NAME = 0,
+      OBJECT,
+      IS_SUBENTITY,
+      IS_NOT_HIERARCHY
+    };
+    typedef std::vector< std::tuple< std::string, Entity*, bool, bool > >
+      TEntitiesTypes;
+
+    virtual ~EntitiesTypes( void )
+    {
+    }
+    const TEntitiesTypes& entitiesTypes( void ) const
+    {
+      return _entitiesTypes;
+    };
+    const TEntitiesTypes& notHierarchyTypes( void ) const
+    {
+      return _notHierarchyTypes;
+    };
+
+    Entity* getEntityObject( const std::string& entityTypeName ) const
+    {
+      for ( auto entityTuple : _entitiesTypes )
       {
-        if( entityTypeName ==
-            std::get< EntitiesTypes::ENTITY_NAME >( entityTuple ) )
+        if ( entityTypeName ==
+             std::get< EntitiesTypes::ENTITY_NAME >( entityTuple ) )
         {
           return std::get< EntitiesTypes::OBJECT >( entityTuple );
         }
       }
-      SHIFT_THROW( "Entity type not recognised" );
+      SHIFT_THROW( std::string( "Entity type '" ) + entityTypeName +
+                   std::string( "' not recognised" ) );
     }
 
   protected:
@@ -60,6 +75,6 @@ namespace shift
     TEntitiesTypes _notHierarchyTypes;
   };
 
-}
+} // namespace shift
 
 #endif
