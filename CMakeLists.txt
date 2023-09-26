@@ -1,9 +1,9 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #
 #   ShiFT
-#   2016 (c) GMRV / URJC / UPM
-#   gmrv@gmrv.es
-#   www.gmrv.es
+#   2016 (c) VG-Lab / URJC / UPM
+#   vg-lab@vg-lab.es
+#   www.vg-lab.es
 #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 cmake_minimum_required( VERSION 3.1 FATAL_ERROR )
@@ -37,7 +37,7 @@ set( SHIFT_DESCRIPTION
      "ShiFT - ScHematic vIsualization Framework and Tools" )
 set( SHIFT_MAINTAINER "Pablo Toharia <pablo.toharia@upm.es>")
 set( SHIFT_LICENSE LGPL)
-set( COMMON_PROJECT_DOMAIN gmrv.es )
+set( COMMON_PROJECT_DOMAIN vg-lab.es )
 
 include( Common )
 

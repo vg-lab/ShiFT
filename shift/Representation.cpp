@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 GMRV/URJC/UPM.
+ * Copyright (c) 2014-2016 VG-Lab/URJC/UPM.
  *
  * Authors: Juan Pedro Brito <juanpedro.brito@upm.es>
  *          Sergio E. Galindo <sergio.galindo@urj.es>
